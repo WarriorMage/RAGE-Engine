@@ -24,7 +24,6 @@ from casefile.demo import DEMO_QUESTIONS
 from casefile.db import get_db
 from casefile.embeddings import embed_query
 from casefile.ingest import SOURCES
-from casefile.llm import model_name, provider
 from casefile.parsing import parse_document
 from casefile.report import to_markdown
 from casefile.pipeline import ID_PREFIXES, add_document, build_raw, collection_stats, next_source_id
@@ -123,8 +122,6 @@ with st.sidebar:
     except Exception as e:  # show connection problems instead of crashing
         st.error(f"Cannot reach MongoDB: {e}")
         st.stop()
-    st.divider()
-    st.caption(f"AI: {provider()} / {model_name()}")
 
 
 ask_tab, report_tab, library_tab, add_tab, lab_tab = st.tabs(
