@@ -169,18 +169,33 @@ def show_answer(a) -> None:
     for w in a.warnings:
         st.warning(f"Check: {w}")
 
-    st.subheader(f"📄 Sources ({len(a.cited_sources)})")
-    st.caption("Open a source to read the original document with the quoted passages highlighted.")
-    for sid in a.cited_sources:
+    # Every source mentioned anywhere (quoted citations, answer text, contradictions) can be opened.
+    mentioned: list[str] = list(a.cited_sources)
+    texts = [a.answer] + [f"{c.claim} {c.contradiction} {c.assessment}" for c in a.conflicts]
+    extra_ids = [sid for t in texts for sid in re.findall(r"\[([A-Z]+-\d+)\]", t)]
+    extra_ids += [sid for c in a.conflicts for sid in c.claim_sources + c.contradiction_sources]
+    for sid in extra_ids:
+        if sid not in mentioned:
+            mentioned.append(sid)
+
+    st.subheader(f"📄 Sources ({len(mentioned)})")
+    st.caption("Open a source to read the original document. Quoted passages are highlighted.")
+    for sid in mentioned:
         cites = [c for c in a.citations if c.source_id == sid]
-        verified = all(c.quote_verified for c in cites)
-        with st.expander(f"{'✅' if verified else '⚠️'} [{sid}] {cites[0].title}  ({TYPE_LABELS.get(cites[0].doc_type, '')})"):
+        src = load_source(sid)
+        if not src:
+            continue
+        if cites:
+            icon = "✅" if all(c.quote_verified for c in cites) else "⚠️"
+        else:
+            icon = "📎"   # referenced, but no exact quote given
+        with st.expander(f"{icon} [{sid}] {src['title']}  ({TYPE_LABELS.get(src['doc_type'], '')})"):
             for c in cites:
                 st.markdown(f"> {c.quote}" + ("" if c.quote_verified else "  \n⚠️ *quote not found word-for-word*"))
-            src = load_source(sid)
-            if src:
-                st.caption(f"{src['title']} · {fmt_date(src.get('date'))} {src.get('time', '')} · by {src.get('author', '')}")
-                st.markdown(highlight(src["body"], [(c.quote_start, c.quote_end) for c in cites]), unsafe_allow_html=True)
+            if not cites:
+                st.caption("Referenced in the answer or contradictions (no exact quote given).")
+            st.caption(f"{fmt_date(src.get('date'))} {src.get('time', '')} · by {src.get('author', '')}")
+            st.markdown(highlight(src["body"], [(c.quote_start, c.quote_end) for c in cites]), unsafe_allow_html=True)
 
     with st.expander(f"🔬 How this answer was found ({len(a.evidence)} evidence chunks, model {a.model})"):
         if a.follow_up_searches:
