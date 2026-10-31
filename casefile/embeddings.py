@@ -105,3 +105,8 @@ def embed_documents(texts: list[str]) -> list[list[float]]:
 
 def embed_query(text: str) -> list[float]:
     return _embed([text], "query")[0]
+
+
+def embed_queries(texts: list[str]) -> list[list[float]]:
+    """Embed several search queries in ONE request (saves free-tier Voyage requests)."""
+    return _embed(texts, "query") if texts else []

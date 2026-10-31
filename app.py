@@ -5,6 +5,7 @@ Run from the repo root:
 
 Tabs:
   Ask           - question -> verdict, cited answer, contradictions, sources with highlighted passages
+  Case report   - one click: a cited investigation brief (timeline, persons, findings, open questions)
   Library       - browse and read every document in the collection
   Add documents - upload or paste documents; they are chunked, embedded and searchable at once
   Search lab    - compare vector, keyword and hybrid retrieval side by side
@@ -23,6 +24,7 @@ from casefile.embeddings import embed_query
 from casefile.ingest import SOURCES
 from casefile.llm import model_name, provider
 from casefile.parsing import parse_document
+from casefile.report import generate_report, to_markdown
 from casefile.pipeline import ID_PREFIXES, add_document, build_raw, collection_stats, next_source_id
 from casefile.search import DOC_TYPES, Filters, search
 
@@ -122,7 +124,8 @@ with st.sidebar:
     st.caption(f"AI: {provider()} / {model_name()}")
 
 
-ask_tab, library_tab, add_tab, lab_tab = st.tabs(["🔎 Ask", "📂 Library", "➕ Add documents", "🧪 Search lab"])
+ask_tab, report_tab, library_tab, add_tab, lab_tab = st.tabs(
+    ["🔎 Ask", "📋 Case report", "📂 Library", "➕ Add documents", "🧪 Search lab"])
 
 
 # ---------------------------------------------------------------- Ask
@@ -230,6 +233,74 @@ with ask_tab:
         st.divider()
         st.markdown(f"#### Q: {st.session_state['answer'].question}")
         show_answer(st.session_state["answer"])
+
+
+# ---------------------------------------------------------------- Case report
+
+def cite_chips(text: str) -> str:
+    return re.sub(r"\[([A-Z]+-\d+)\]", r"`\1`", text)
+
+
+with report_tab:
+    st.header("Case report")
+    st.write("Generates an investigation brief from the case files. Every line cites its source; "
+             "lines without a valid citation are removed automatically, and gaps are listed as open questions.")
+    focus = st.text_input("Focus (optional)", placeholder="e.g. movements of vehicle 231-D-55120", key="report_focus")
+    report_filters = filters_ui("report")
+    if st.button("Generate case report", type="primary") and report_filters is not None:
+        with st.spinner("Gathering evidence from 6 angles and writing the report... (about 30-60 seconds)"):
+            try:
+                st.session_state["report"] = generate_report(db(), focus, report_filters)
+            except RuntimeError as e:
+                st.session_state.pop("report", None)
+                st.error(str(e))
+
+    r = st.session_state.get("report")
+    if r:
+        titles = {sid: (load_source(sid) or {}).get("title", "") for sid in r.cited_sources}
+        st.download_button("⬇️ Download report (Markdown)", to_markdown(r, titles),
+                           file_name=f"case-report-{r.created.replace(' ', '-').replace(':', '')}.md",
+                           mime="text/markdown")
+        st.subheader(r.title)
+        st.caption(f"Generated {r.created} · focus: {r.focus} · model: {r.model} · "
+                   f"{len(r.evidence)} evidence chunks · {len(r.cited_sources)} sources quoted")
+        for w in r.warnings:
+            st.warning(w)
+        st.markdown(cite_chips(r.summary))
+        if r.timeline:
+            st.markdown("#### 🕒 Timeline")
+            st.dataframe([{"time": t["time"], "event": t["event"]} for t in r.timeline], hide_index=True, width="stretch")
+        if r.persons:
+            st.markdown("#### 👤 Persons of interest")
+            st.dataframe([{"person": p["name"], "role": p["role"], "what the records show": p["what_records_show"],
+                           "status": p["status"]} for p in r.persons], hide_index=True, width="stretch")
+        if r.findings:
+            st.markdown("#### 🔑 Key findings")
+            icons = {"confirmed by records": "🟢", "single source": "🟡", "claim only": "🟠"}
+            for f in r.findings:
+                st.markdown(f"{icons.get(f['strength'], '•')} **{f['strength']}**: {cite_chips(f['finding'])}")
+        if r.contradictions:
+            st.markdown("#### ⚠️ Contradictions")
+            for c in r.contradictions:
+                with st.container(border=True):
+                    st.markdown(f"🗣️ **Claim:** {cite_chips(c['claim'])}")
+                    st.markdown(f"📼 **But:** {cite_chips(c['contradiction'])}")
+                    st.markdown(f"⚖️ **Assessment:** {cite_chips(c['assessment'])}")
+        if r.open_questions:
+            st.markdown("#### ❓ Open questions (not answered by the case files)")
+            for q in r.open_questions:
+                st.markdown(f"- {q}")
+        st.markdown("#### 📄 Sources")
+        for sid in r.cited_sources:
+            cites = [c for c in r.citations if c.source_id == sid]
+            src = load_source(sid)
+            if not src:
+                continue
+            ok = all(c.quote_verified for c in cites)
+            with st.expander(f"{'✅' if ok else '⚠️'} [{sid}] {src['title']}"):
+                for c in cites:
+                    st.markdown(f"> {c.quote}")
+                st.markdown(highlight(src["body"], [(c.quote_start, c.quote_end) for c in cites]), unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------- Library

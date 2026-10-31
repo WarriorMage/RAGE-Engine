@@ -8,3 +8,4 @@ __pycache__/
 venv/
 eval/query_cache.json
 eval/results/
+reports/
