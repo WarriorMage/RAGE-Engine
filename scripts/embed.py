@@ -15,8 +15,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from pymongo import UpdateOne  # noqa: E402
 
 from casefile.db import get_db  # noqa: E402
-from casefile.embeddings import BATCH_SIZE, chunk_embedding_text, embed_documents, model_name  # noqa: E402
+from casefile.embeddings import chunk_embedding_text, embed_documents, model_name  # noqa: E402
 from casefile.ingest import CHUNKS  # noqa: E402
+
+SAVE_EVERY = 12  # chunks embedded and saved per step, so progress survives rate limits
 
 
 def main() -> int:
@@ -40,8 +42,8 @@ def main() -> int:
     print(f"Embedding {len(chunks)} of {total} chunks with {model}...")
     dims = 0
     # Save batch by batch, so progress is kept even if a later batch fails.
-    for i in range(0, len(chunks), BATCH_SIZE):
-        batch = chunks[i:i + BATCH_SIZE]
+    for i in range(0, len(chunks), SAVE_EVERY):
+        batch = chunks[i:i + SAVE_EVERY]
         vectors = embed_documents([chunk_embedding_text(c) for c in batch])
         now = datetime.now(timezone.utc)
         db[CHUNKS].bulk_write([
@@ -49,7 +51,7 @@ def main() -> int:
             for c, v in zip(batch, vectors)
         ])
         dims = len(vectors[0])
-        print(f"  saved {min(i + BATCH_SIZE, len(chunks))}/{len(chunks)}")
+        print(f"  saved {min(i + SAVE_EVERY, len(chunks))}/{len(chunks)}")
 
     done = db[CHUNKS].count_documents({"embedding_model": model})
     print(f"Done ✅  {done}/{total} chunks have embeddings ({model}, {dims} numbers each)")

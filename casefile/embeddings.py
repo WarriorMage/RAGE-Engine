@@ -17,7 +17,8 @@ load_dotenv()
 
 DEFAULT_MODEL = "voyage-4"
 EMBEDDING_DIMS = 1024
-BATCH_SIZE = 32        # chunks per API call (well under Voyage's limits)
+BATCH_SIZE = 32                  # max chunks per API call
+MAX_TOKENS_PER_REQUEST = 3000    # keeps each call well inside the free-tier per-minute limit
 
 
 def model_name() -> str:
@@ -56,10 +57,33 @@ def _embed(texts: list[str], input_type: str) -> list[list[float]]:
     raise RuntimeError("Voyage rate limit: gave up. Add a payment method at dash.voyageai.com to raise limits.")
 
 
+def _estimate_tokens(text: str) -> int:
+    return int(len(text.split()) * 1.5) + 8   # rough, errs on the high side
+
+
+def _batches(texts: list[str]) -> list[list[str]]:
+    """Group texts so each request stays under MAX_TOKENS_PER_REQUEST.
+
+    Voyage's free tier allows about 10K tokens per minute, so a request bigger than that
+    can never succeed; small requests also recover faster after a rate limit.
+    """
+    batches, current, size = [], [], 0
+    for t in texts:
+        n = _estimate_tokens(t)
+        if current and (size + n > MAX_TOKENS_PER_REQUEST or len(current) >= BATCH_SIZE):
+            batches.append(current)
+            current, size = [], 0
+        current.append(t)
+        size += n
+    if current:
+        batches.append(current)
+    return batches
+
+
 def embed_documents(texts: list[str]) -> list[list[float]]:
     out: list[list[float]] = []
-    for i in range(0, len(texts), BATCH_SIZE):
-        out.extend(_embed(texts[i:i + BATCH_SIZE], "document"))
+    for batch in _batches(texts):
+        out.extend(_embed(batch, "document"))
     return out
 
 
