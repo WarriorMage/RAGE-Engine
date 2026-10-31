@@ -271,7 +271,8 @@ def rrf_fuse(ranked_lists: dict[str, list[dict]], k: int, weights: dict[str, flo
 
 
 def hybrid_search(db: Database, query: str, k: int = 5, filters: Filters | None = None,
-                  depth: int = 20, vector_weight: float = 1.0, text_weight: float | None = None) -> list[dict]:
+                  depth: int = 20, vector_weight: float = 1.0, text_weight: float | None = None,
+                  query_vector: list[float] | None = None) -> list[dict]:
     """Run vector and text search (each `depth` deep) and fuse them with RRF.
 
     text_weight defaults to 1.0, or CODE_TEXT_WEIGHT when the query contains a code like HB-9042.
@@ -280,17 +281,19 @@ def hybrid_search(db: Database, query: str, k: int = 5, filters: Filters | None 
     if text_weight is None:
         text_weight = CODE_TEXT_WEIGHT if has_code(query) else 1.0
     return rrf_fuse(
-        {"vector": vector_search(db, query, depth, f), "text": text_search(db, query, depth, f)},
+        {"vector": vector_search(db, query, depth, f, query_vector=query_vector),
+         "text": text_search(db, query, depth, f)},
         k,
         {"vector": vector_weight, "text": text_weight},
     )
 
 
-def search(db: Database, query: str, k: int = 5, filters: Filters | None = None, mode: str = "hybrid") -> list[dict]:
+def search(db: Database, query: str, k: int = 5, filters: Filters | None = None, mode: str = "hybrid",
+           query_vector: list[float] | None = None) -> list[dict]:
     if mode == "vector":
-        return vector_search(db, query, k, filters)
+        return vector_search(db, query, k, filters, query_vector=query_vector)
     if mode == "text":
         return text_search(db, query, k, filters)
     if mode == "hybrid":
-        return hybrid_search(db, query, k, filters)
+        return hybrid_search(db, query, k, filters, query_vector=query_vector)
     raise ValueError("mode must be 'vector', 'text' or 'hybrid'")
