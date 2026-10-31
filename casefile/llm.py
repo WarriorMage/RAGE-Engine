@@ -7,7 +7,7 @@ Works with two providers through the OpenAI Python SDK:
 Settings (.env):
   LLM_PROVIDER=gemini            # or "openai"
   GEMINI_API_KEY=...             # from https://aistudio.google.com/apikey
-  GEMINI_MODEL=gemini-2.5-flash  # optional
+  GEMINI_MODEL=gemini-flash-latest  # optional
   OPENAI_API_KEY=...             # only if LLM_PROVIDER=openai
   OPENAI_MODEL=gpt-4.1           # optional
 """
@@ -24,7 +24,7 @@ load_dotenv()
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 PROVIDERS = {
     #           key env var        model env var    default model         base url
-    "gemini": ("GEMINI_API_KEY", "GEMINI_MODEL", "gemini-2.5-flash", GEMINI_BASE_URL),
+    "gemini": ("GEMINI_API_KEY", "GEMINI_MODEL", "gemini-flash-latest", GEMINI_BASE_URL),
     "openai": ("OPENAI_API_KEY", "OPENAI_MODEL", "gpt-4.1", None),
 }
 
