@@ -1,6 +1,7 @@
 """Semantic search over chunks with MongoDB Atlas Vector Search."""
 
 import time
+from datetime import datetime, timedelta
 
 from pymongo.database import Database
 from pymongo.operations import SearchIndexModel
@@ -19,8 +20,56 @@ VECTOR_INDEX_DEFINITION = {
         {"type": "filter", "path": "date"},
         {"type": "filter", "path": "source_id"},
         {"type": "filter", "path": "people_mentioned"},
+        {"type": "filter", "path": "author"},
     ]
 }
+
+DOC_TYPES = [
+    "witness_statement", "interview_transcript", "cctv_log", "door_access_log", "phone_record",
+    "police_note", "forensic_report", "email", "chat_export", "receipt",
+]
+
+
+def _parse_day(value: str) -> datetime:
+    try:
+        return datetime.strptime(value, "%Y-%m-%d")
+    except ValueError:
+        raise ValueError(f"date '{value}' must look like YYYY-MM-DD") from None
+
+
+def build_filter(
+    doc_types: list[str] | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    people: list[str] | None = None,
+    authors: list[str] | None = None,
+    source_ids: list[str] | None = None,
+) -> dict | None:
+    """Build a $vectorSearch pre-filter from simple options. Returns None when nothing is set.
+
+    date_from / date_to are inclusive days ("YYYY-MM-DD") matched against the document date.
+    people matches documents whose people_mentioned list contains any of the names.
+    """
+    conditions: list[dict] = []
+    if doc_types:
+        unknown = sorted(set(doc_types) - set(DOC_TYPES))
+        if unknown:
+            raise ValueError(f"unknown doc type(s): {', '.join(unknown)}. Valid: {', '.join(DOC_TYPES)}")
+        conditions.append({"doc_type": {"$in": list(doc_types)}})
+    if date_from:
+        conditions.append({"date": {"$gte": _parse_day(date_from)}})
+    if date_to:
+        conditions.append({"date": {"$lt": _parse_day(date_to) + timedelta(days=1)}})
+    if people:
+        conditions.append({"people_mentioned": {"$in": list(people)}})
+    if authors:
+        conditions.append({"author": {"$in": list(authors)}})
+    if source_ids:
+        conditions.append({"source_id": {"$in": list(source_ids)}})
+    if not conditions:
+        return None
+    return conditions[0] if len(conditions) == 1 else {"$and": conditions}
+
 
 # Fields returned for each result (never the big embedding array).
 RESULT_FIELDS = {
