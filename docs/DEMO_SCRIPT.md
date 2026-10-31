@@ -9,6 +9,8 @@ unanswerable request**, then the case report and our measurements.
 - [ ] Check the main AI model is not rate-limited: `check_llm.py` should not print "trying another model"
 - [ ] Remove any test documents: `python scripts/remove_document.py STMT-011 --yes` (sidebar should show **40** documents)
 - [ ] `streamlit run app.py`, browser zoom so text is readable from the back (**Ctrl +**)
+- [ ] Run `python scripts/warm_cache.py` so all demo questions and reports load **instantly** (also on the deployed site).
+      If it warns about "lite" backup models, run `python scripts/warm_cache.py --refresh` later when the main model works
 - [ ] Generate one **case report** and download it, as a backup in case the AI is slow on stage
 - [ ] Open `data/demo/hotel_night_porter.txt` in a text editor, ready to copy
 - [ ] Close other apps using the same Voyage / Gemini keys (free tiers are shared per key)
@@ -32,7 +34,8 @@ Point at the sidebar: **40 documents, 88 chunks**, all in MongoDB Atlas with met
    - Type: `witness statement` · Title: `Witness statement of Declan Shaw` · Author: `Declan Shaw`
    - Date: `2026-10-06` · Time: `10:00` · People: `Marcus Whelan, Declan Shaw`
    - Paste the text of `data/demo/hotel_night_porter.txt` → **Add document**
-   - Expect: `[STMT-011] added: … chunk(s) … embedded`. Sidebar shows **41**. Say:
+   - Expect: `[STMT-011] added: … chunk(s) … embedded`. Sidebar shows **41**. (The cached answer
+     from step 1 is now stale automatically, so the next answer is fresh.) Say:
    > "It was just stored in MongoDB with its metadata, chunked, embedded with Voyage, and picked up by
    > both Atlas indexes automatically."
 3. Back to **Ask**, same question again → now it cites **[STMT-011]**: he left about 01:20 and came
