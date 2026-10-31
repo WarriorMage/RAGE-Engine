@@ -18,6 +18,10 @@ from casefile.db import get_db  # noqa: E402
 from casefile.search import DOC_TYPES, Filters  # noqa: E402
 
 
+def _ids(source_ids: list[str]) -> str:
+    return "".join(f"[{s}]" for s in source_ids)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Ask the case files a question.",
                                      epilog=f"Document types: {', '.join(DOC_TYPES)}")
@@ -43,8 +47,27 @@ def main() -> int:
         print(f"❌ {e}")
         return 1
 
-    print(f"\nQ: {result.question}\n")
+    print(f"\nQ: {result.question}")
+    print(f"\n{result.status_label}\n")
     print(textwrap.fill(result.answer, 95, replace_whitespace=False))
+
+    if result.conflicts:
+        print("\nContradictions")
+        print("--------------")
+        for i, c in enumerate(result.conflicts, 1):
+            print(f"  {i}. {c.topic}")
+            print(textwrap.indent(textwrap.fill(f"Claim: {c.claim} {_ids(c.claim_sources)}", 88), "     "))
+            print(textwrap.indent(textwrap.fill(f"But:   {c.contradiction} {_ids(c.contradiction_sources)}", 88), "     "))
+            print(textwrap.indent(textwrap.fill(f"Assessment: {c.assessment}", 88), "     "))
+
+    if result.missing:
+        print("\nNot in the case files")
+        print("---------------------")
+        for m in result.missing:
+            print(f"  - {m}")
+
+    for w in result.warnings:
+        print(f"\n⚠️  Check: {w}")
 
     if result.follow_up_searches:
         print(f"\n(follow-up searches: {', '.join(result.follow_up_searches)})")

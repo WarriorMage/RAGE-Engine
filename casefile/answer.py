@@ -7,6 +7,9 @@ Pipeline for one question:
   3. Answer      : the LLM answers ONLY from the evidence, citing [E1], [E2], ...
   4. Verify      : unknown evidence ids are dropped, each quote is checked against the chunk
                    text and located in the source body (for highlighting), [E3] -> [SOURCE-ID]
+  5. Guard       : (Step 10) every answer gets a status - answered / partial / conflicting /
+                   insufficient - plus explicit contradictions and what is missing. Code-level
+                   checks downgrade answers whose citations do not hold up.
 """
 
 import re
@@ -20,9 +23,19 @@ from casefile.search import Filters, hybrid_search, text_search
 MAX_SOURCES = 10            # measured in Step 8: recall@10 = 87-90% vs 80-83% at 5
 MAX_CHUNKS_PER_SOURCE = 2
 MAX_FOLLOW_UPS = 3
-FOLLOW_UP_RESULTS = 4       # chunks fetched per follow-up search
-MAX_EVIDENCE = 20           # total chunks given to the answer step
+FOLLOW_UP_RESULTS = 6       # chunks fetched per follow-up search
+MAX_EVIDENCE = 24           # total chunks given to the answer step
 SEARCH_DEPTH = 40           # chunks fetched by the first search before picking sources
+
+STATUSES = ["answered", "partial", "conflicting", "insufficient"]
+STATUS_LABELS = {
+    "answered": "✅ Answered",
+    "partial": "🟡 Partly answered",
+    "conflicting": "⚠️ Conflicting evidence",
+    "insufficient": "❌ Not in the case files",
+}
+# Police notes summarise other documents; the original records are better evidence.
+SUMMARY_TYPES = {"police_note"}
 
 
 # ---------------------------------------------------------------- data classes
@@ -41,6 +54,16 @@ class Citation:
 
 
 @dataclass
+class Conflict:
+    topic: str
+    claim: str                    # what one source says
+    claim_sources: list[str]      # source ids
+    contradiction: str            # what other evidence shows instead
+    contradiction_sources: list[str]
+    assessment: str               # which side the evidence supports better, or "unresolved"
+
+
+@dataclass
 class Answer:
     question: str
     answer: str                          # answer text with [SOURCE-ID] citations
@@ -48,6 +71,14 @@ class Answer:
     evidence: list[dict]                 # every chunk shown to the model, with its "label"
     follow_up_searches: list[str] = field(default_factory=list)
     model: str = ""
+    status: str = "answered"             # one of STATUSES
+    conflicts: list[Conflict] = field(default_factory=list)
+    missing: list[str] = field(default_factory=list)    # what the case files do not say
+    warnings: list[str] = field(default_factory=list)   # problems found by the code checks
+
+    @property
+    def status_label(self) -> str:
+        return STATUS_LABELS.get(self.status, self.status)
 
     @property
     def cited_sources(self) -> list[str]:
@@ -85,8 +116,9 @@ def format_evidence(evidence: list[dict]) -> str:
     blocks = []
     for e in evidence:
         date = e["date"].strftime("%Y-%m-%d") if hasattr(e.get("date"), "strftime") else e.get("date", "")
+        kind = "SUMMARY of other documents" if e["doc_type"] in SUMMARY_TYPES else "original record"
         blocks.append(
-            f"[{e['label']}] {e['source_id']} | {e['title']} | {e['doc_type']} | dated {date} | by {e.get('author', '')}\n"
+            f"[{e['label']}] {e['source_id']} | {e['title']} | {e['doc_type']} ({kind}) | dated {date} | by {e.get('author', '')}\n"
             f"{e['text']}"
         )
     return "\n\n".join(blocks)
@@ -144,22 +176,60 @@ def run_follow_ups(db: Database, searches: list[str], evidence: list[dict],
 # ---------------------------------------------------------------- step 3: answer
 
 ANSWER_SYSTEM = """You are Case File, an assistant for investigators.
-Answer the question using ONLY the evidence excerpts provided. Rules:
+Answer the question using ONLY the evidence excerpts provided.
+
+CITATIONS
 - Every factual sentence must cite the evidence it comes from, like [E3]. When a statement
   combines several pieces of evidence, cite all of them, like [E2][E7].
-- Use no outside knowledge and do not guess. Witnesses can be wrong or lie: say who claims
-  what, and point out when evidence contradicts a claim.
+- Prefer ORIGINAL RECORDS (logs, CCTV, statements, interviews, emails, receipts, forensic
+  reports). Cite a "SUMMARY" (police note) only if no original record shows the same fact.
+- For each citation give a short quote (a few words up to one sentence) copied EXACTLY,
+  character for character, from that evidence excerpt.
+
+HONESTY
+- Use no outside knowledge. Never guess, speculate about motives, or fill gaps.
+- People can be mistaken or lie. Report claims as claims ("X says ..."), and check them
+  against records such as CCTV, door logs and phone records.
 - Give exact times, codes and names as written in the evidence.
 - Be concise: 3-8 sentences, or a short bullet list.
-- If the evidence does not answer the question, say clearly that the case files do not
-  contain the answer, and mention only what IS known, with citations.
-For each citation, also give a short quote (a few words up to one sentence) copied EXACTLY,
-character for character, from that evidence excerpt."""
+
+STATUS (choose exactly one)
+- "answered": the evidence directly answers the question.
+- "conflicting": sources relevant to the question disagree (a claim vs a record, or two
+  witnesses). Explain both sides in the answer AND list each disagreement in "conflicts".
+- "partial": the evidence answers only part of the question. List the rest in "missing".
+- "insufficient": the case files do not contain the answer. Start the answer with
+  "The case files do not show ..." and then give only closely related facts that ARE known,
+  with citations. List what is unknown in "missing".
+
+CONFLICTS: for each disagreement give the topic, the claim and its evidence ids, what the
+other evidence shows and its evidence ids, and an assessment of which side the records
+support better (or "unresolved" if they do not). Use [] when there are none.
+MISSING: short phrases describing information the case files do not contain. [] if none."""
 
 ANSWER_SCHEMA = {
     "type": "object",
     "properties": {
+        "status": {"type": "string", "enum": STATUSES},
         "answer": {"type": "string"},
+        "conflicts": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "topic": {"type": "string"},
+                    "claim": {"type": "string"},
+                    "claim_evidence": {"type": "array", "items": {"type": "string"}},
+                    "contradiction": {"type": "string"},
+                    "contradiction_evidence": {"type": "array", "items": {"type": "string"}},
+                    "assessment": {"type": "string"},
+                },
+                "required": ["topic", "claim", "claim_evidence", "contradiction",
+                             "contradiction_evidence", "assessment"],
+                "additionalProperties": False,
+            },
+        },
+        "missing": {"type": "array", "items": {"type": "string"}},
         "citations": {
             "type": "array",
             "items": {
@@ -170,7 +240,7 @@ ANSWER_SCHEMA = {
             },
         },
     },
-    "required": ["answer", "citations"],
+    "required": ["status", "answer", "conflicts", "missing", "citations"],
     "additionalProperties": False,
 }
 
@@ -219,6 +289,62 @@ def verify_citations(raw_citations: list[dict], evidence: list[dict]) -> list[Ci
     return citations
 
 
+def labels_to_sources(labels: list[str], evidence: list[dict]) -> list[str]:
+    """['E3', '[E5]', 'E99'] -> ['ACCESS-001', 'CCTV-003'] (unknown labels dropped, no repeats)."""
+    by_label = {e["label"]: e["source_id"] for e in evidence}
+    out: list[str] = []
+    for label in labels:
+        sid = by_label.get(label.strip().strip("[]"))
+        if sid and sid not in out:
+            out.append(sid)
+    return out
+
+
+def build_conflicts(raw: list[dict], evidence: list[dict]) -> list[Conflict]:
+    conflicts = []
+    for c in raw:
+        claim_sources = labels_to_sources(c.get("claim_evidence", []), evidence)
+        counter_sources = labels_to_sources(c.get("contradiction_evidence", []), evidence)
+        if not (claim_sources or counter_sources):      # a conflict with no evidence at all is dropped
+            continue
+        conflicts.append(Conflict(
+            topic=c.get("topic", ""),
+            claim=replace_labels(c.get("claim", ""), evidence),
+            claim_sources=claim_sources,
+            contradiction=replace_labels(c.get("contradiction", ""), evidence),
+            contradiction_sources=counter_sources,
+            assessment=replace_labels(c.get("assessment", ""), evidence),
+        ))
+    return conflicts
+
+
+def apply_guards(status: str, citations: list[Citation], conflicts: list[Conflict]) -> tuple[str, list[str]]:
+    """Code-level honesty checks that do not trust the model's own judgement.
+
+    - An answer that claims to answer but has no valid citation becomes "insufficient".
+    - "conflicting" must come with at least one listed conflict, and listed conflicts
+      make the status "conflicting".
+    - Quotes that could not be found in the source produce a warning.
+    """
+    warnings: list[str] = []
+    if status not in STATUSES:
+        warnings.append(f"Unknown status '{status}' from the model; treated as partial.")
+        status = "partial"
+    if status != "insufficient" and not citations:
+        warnings.append("The answer had no valid citations, so it is not trusted.")
+        status = "insufficient"
+    if status == "conflicting" and not conflicts:
+        warnings.append("Marked as conflicting but no specific conflict was listed.")
+        status = "partial"
+    if conflicts and status in ("answered", "partial"):
+        status = "conflicting"
+    unverified = [c for c in citations if not c.quote_verified]
+    if unverified:
+        warnings.append(f"{len(unverified)} of {len(citations)} quotes could not be found word-for-word "
+                        f"in their source ({', '.join(sorted({c.source_id for c in unverified}))}).")
+    return status, warnings
+
+
 def replace_labels(answer: str, evidence: list[dict]) -> str:
     """Turn [E3] into [ACCESS-001]; drop labels that do not exist; merge repeats like [A][A]."""
     by_label = {e["label"]: e["source_id"] for e in evidence}
@@ -229,9 +355,11 @@ def replace_labels(answer: str, evidence: list[dict]) -> str:
 
 # ---------------------------------------------------------------- main entry point
 
-def answer_question(db: Database, question: str, filters: Filters | None = None) -> Answer:
-    # 1. Retrieve (the only Voyage call)
-    first = hybrid_search(db, question, k=SEARCH_DEPTH, filters=filters, depth=SEARCH_DEPTH)
+def answer_question(db: Database, question: str, filters: Filters | None = None,
+                    query_vector: list[float] | None = None) -> Answer:
+    # 1. Retrieve (the only Voyage call, skipped if a query vector is given)
+    first = hybrid_search(db, question, k=SEARCH_DEPTH, filters=filters, depth=SEARCH_DEPTH,
+                          query_vector=query_vector)
     evidence = label_evidence(select_evidence(first))
 
     # 2. Investigate with keyword follow-ups
@@ -246,7 +374,8 @@ def answer_question(db: Database, question: str, filters: Filters | None = None)
 
     if not evidence:
         return Answer(question, "The case files contain no evidence matching this question.",
-                      [], [], follow_ups, model_name())
+                      [], [], follow_ups, model_name(), status="insufficient",
+                      missing=["any document matching this question"])
 
     # 3. Answer from the evidence only
     result = chat_json(
@@ -258,6 +387,10 @@ def answer_question(db: Database, question: str, filters: Filters | None = None)
 
     # 4. Verify citations and swap labels for source ids
     citations = verify_citations(result.get("citations", []), evidence)
+    conflicts = build_conflicts(result.get("conflicts", []), evidence)
+
+    # 5. Honesty guard
+    status, warnings = apply_guards(result.get("status", "partial"), citations, conflicts)
     return Answer(
         question=question,
         answer=replace_labels(result.get("answer", ""), evidence),
@@ -265,4 +398,8 @@ def answer_question(db: Database, question: str, filters: Filters | None = None)
         evidence=evidence,
         follow_up_searches=follow_ups,
         model=model_name(),
+        status=status,
+        conflicts=conflicts,
+        missing=[m for m in result.get("missing", []) if m.strip()],
+        warnings=warnings,
     )
