@@ -1,0 +1,182 @@
+{
+  "model": "gemini-3.5-flash",
+  "rows": [
+    {
+      "id": "Q07",
+      "type": "conflict",
+      "status": "conflicting",
+      "status_ok": true,
+      "cited_recall": 0.4,
+      "quotes_verified": 1.0,
+      "cited": [
+        "CCTV-001",
+        "STMT-006"
+      ],
+      "missed": [
+        "STMT-005",
+        "PHONE-002",
+        "INTV-001"
+      ],
+      "warnings": [],
+      "answer": "No, the security desk was not staffed at around 01:30 [CCTV-001][STMT-006]. The CCTV log and door access records show that the security officer, Tomás Ryan, left through the front door at 01:24:28 and did not return until 01:51:00 [CCTV-001][ACCESS-003]. A contract cleaner passing the desk at 01:30:50 also noted that it was unattended [CCTV-001][STMT-006].",
+      "model": "gemini-flash-lite-latest",
+      "question_parts": [
+        {
+          "part": "Was the security desk staffed at around 01:30?",
+          "covered": "yes"
+        }
+      ]
+    },
+    {
+      "id": "Q08",
+      "type": "conflict",
+      "status": "conflicting",
+      "status_ok": true,
+      "cited_recall": 0.5,
+      "quotes_verified": 1.0,
+      "cited": [
+        "INTV-002",
+        "STMT-002",
+        "CHAT-001"
+      ],
+      "missed": [
+        "STMT-003",
+        "STMT-004"
+      ],
+      "warnings": [],
+      "answer": "Ciarán Doyle was at Team 7's table at about 00:16 to borrow a USB-C cable [INTV-002][STMT-002][CHAT-001]. Although Priya Nair claimed in her statement that she saw him there around half one [STMT-004], Ciarán stated and Garda records confirm that this sighting corresponded to the 00:16 visit captured in a photo, with Priya misremembering the time [INTV-002][NOTE-002].",
+      "model": "gemini-flash-lite-latest",
+      "question_parts": [
+        {
+          "part": "When was Ciarán Doyle at Team 7's table after the argument?",
+          "covered": "yes"
+        }
+      ]
+    },
+    {
+      "id": "Q09",
+      "type": "conflict",
+      "status": "conflicting",
+      "status_ok": true,
+      "cited_recall": 0.6666666666666666,
+      "quotes_verified": 1.0,
+      "cited": [
+        "CCTV-004",
+        "INTV-003",
+        "STMT-002"
+      ],
+      "missed": [
+        "STMT-008"
+      ],
+      "warnings": [],
+      "answer": "At about 01:40, one tall occupant exited the Audi [CCTV-004]. According to witness Rohan Mehta, the person was tall (taller than five eleven) [INTV-003], looked older and not like a student [INTV-003], wore a dark-colored puffy or quilted jacket [INTV-003], and had a cap or something on his head [INTV-003].",
+      "model": "gemini-flash-lite-latest",
+      "question_parts": [
+        {
+          "part": "What did the person who got out of the car in the rear car park at about 01:40 look like?",
+          "covered": "yes"
+        }
+      ]
+    },
+    {
+      "id": "Q10",
+      "type": "conflict",
+      "status": "conflicting",
+      "status_ok": true,
+      "cited_recall": 0.2,
+      "quotes_verified": 1.0,
+      "cited": [
+        "ACCESS-003",
+        "CCTV-004",
+        "NOTE-002"
+      ],
+      "missed": [
+        "STMT-009",
+        "INTV-004",
+        "ACCESS-001",
+        "CCTV-003"
+      ],
+      "warnings": [],
+      "answer": "Yes, Marcus Whelan returned to the hub in his rental car (231-D-55120) after leaving at 23:31 [ACCESS-003][CCTV-004]. The car entered the rear car park at 01:39:05, and an occupant matching his description wearing a quilted jacket entered via DOOR-E2 using badge HB-9042 before leaving again at 02:03:12 [INTV-004][NOTE-002][CCTV-004].",
+      "model": "gemini-flash-lite-latest",
+      "question_parts": [
+        {
+          "part": "Did Marcus Whelan return to the hub after leaving at 23:31?",
+          "covered": "yes"
+        }
+      ]
+    },
+    {
+      "id": "Q11",
+      "type": "unanswerable",
+      "status": "partial",
+      "status_ok": false,
+      "cited_recall": null,
+      "quotes_verified": 1.0,
+      "cited": [
+        "NOTE-003",
+        "EMAIL-004"
+      ],
+      "missed": [],
+      "warnings": [],
+      "answer": "The stolen laptop has not been recovered and its current location is unknown [NOTE-003]. Its last known location check-in was on Sunday 4 October 2026 at 02:21 near Hanover Quay, Grand Canal Dock, Dublin 2, after which the portal reported the device as \"offline\" [EMAIL-004].",
+      "model": "gemini-flash-lite-latest",
+      "question_parts": [
+        {
+          "part": "Where is the stolen laptop right now?",
+          "covered": "partly"
+        }
+      ]
+    },
+    {
+      "id": "Q12",
+      "type": "unanswerable",
+      "status": "insufficient",
+      "status_ok": true,
+      "cited_recall": null,
+      "quotes_verified": 1.0,
+      "cited": [
+        "PHONE-003",
+        "INTV-005"
+      ],
+      "missed": [],
+      "warnings": [],
+      "answer": "The case files do not show what was said during the phone call from Marcus Whelan's phone; the call content is not held by the operator [PHONE-003]. Marcus Whelan declined to answer questions about who he called and what the call was about [INTV-005].",
+      "model": "gemini-flash-lite-latest",
+      "question_parts": [
+        {
+          "part": "What was said during the 02:05 phone call from Marcus Whelan's phone?",
+          "covered": "no"
+        }
+      ]
+    },
+    {
+      "id": "Q13",
+      "type": "unanswerable",
+      "status": "insufficient",
+      "status_ok": true,
+      "cited_recall": null,
+      "quotes_verified": 1.0,
+      "cited": [
+        "EMAIL-003",
+        "STMT-001",
+        "NOTE-001",
+        "EMAIL-004"
+      ],
+      "missed": [],
+      "warnings": [],
+      "answer": "The case files do not show why Team 7's prototype was stolen or who the thief was working for. The files show that Team 7's silver ThinkPad X1 Carbon laptop and Lumen Band prototype were stolen from table T-07 overnight [EMAIL-003][NOTE-001]. The laptop held the team's only copy of their source code because they had not pushed to their GitHub repository [EMAIL-003][STMT-001], and its Find My Device location last checked in near Hanover Quay at 02:21 on 4 October 2026 [EMAIL-004].",
+      "model": "gemini-flash-lite-latest",
+      "question_parts": [
+        {
+          "part": "Why was Team 7's prototype stolen",
+          "covered": "no"
+        },
+        {
+          "part": "who was the thief working for",
+          "covered": "no"
+        }
+      ]
+    }
+  ]
+}
