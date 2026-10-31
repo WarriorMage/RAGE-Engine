@@ -1,0 +1,131 @@
+{
+  "model": "gemini-3.5-flash",
+  "rows": [
+    {
+      "id": "Q07",
+      "type": "conflict",
+      "status": "answered",
+      "status_ok": false,
+      "cited_recall": 0.6,
+      "quotes_verified": 1.0,
+      "cited": [
+        "CCTV-001",
+        "INTV-001",
+        "ACCESS-003",
+        "STMT-006"
+      ],
+      "missed": [
+        "STMT-005",
+        "PHONE-002"
+      ],
+      "warnings": [],
+      "answer": "No, the security desk was not staffed at around 01:30. CCTV logs and records show that the security officer, Tomás Ryan, left the desk at 01:24 with a phone to his ear and remained outside until he re-entered at 01:51 [CCTV-001][INTV-001][ACCESS-003]. Furthermore, a contract cleaner who passed the front lobby at around 01:30 noted that the security desk was empty [STMT-006]."
+    },
+    {
+      "id": "Q08",
+      "type": "conflict",
+      "status": "conflicting",
+      "status_ok": true,
+      "cited_recall": 1.0,
+      "quotes_verified": 0.8571428571428571,
+      "cited": [
+        "INTV-002",
+        "STMT-003",
+        "STMT-004",
+        "STMT-002",
+        "CHAT-001",
+        "NOTE-002"
+      ],
+      "missed": [],
+      "warnings": [
+        "1 of 7 quotes could not be found word-for-word in their source (STMT-002)."
+      ],
+      "answer": "Ciarán Doyle claims he was not at Team 7's table after the initial 21:10 argument [INTV-002][STMT-003]. However, records show he visited table T-07 at 00:16 to borrow a USB-C cable from Rohan Mehta [INTV-002][STMT-002][CHAT-001]. Witness Priya Nair claimed she saw Ciarán at Team 7's table later around 01:30 [STMT-004][INTV-002], but Garda records and Ciarán's statements place him upstairs in LAB-2 during that time [STMT-003][INTV-002][STMT-002][F11], leading investigators to assess that Priya misremembered the time of the 00:16 cable visit [NOTE-002]."
+    },
+    {
+      "id": "Q09",
+      "type": "conflict",
+      "status": "answered",
+      "status_ok": false,
+      "cited_recall": 0.6666666666666666,
+      "quotes_verified": 1.0,
+      "cited": [
+        "CCTV-004",
+        "INTV-003",
+        "STMT-002"
+      ],
+      "missed": [
+        "STMT-008"
+      ],
+      "warnings": [],
+      "answer": "At about 01:40, the CCTV log states that \"one tall occupant exits Audi, quilted jacket, stands by vehicle\" [CCTV-004]. According to witness Rohan Mehta, who observed the person from the car park, the individual was tall (taller than five feet eleven inches), looked older, and wore a dark-colored puffy or quilted jacket along with a cap or something on his head [INTV-003][STMT-002]."
+    },
+    {
+      "id": "Q10",
+      "type": "conflict",
+      "status": "answered",
+      "status_ok": false,
+      "cited_recall": 0.2,
+      "quotes_verified": 1.0,
+      "cited": [
+        "ACCESS-003",
+        "CCTV-004",
+        "NOTE-002"
+      ],
+      "missed": [
+        "STMT-009",
+        "INTV-004",
+        "ACCESS-001",
+        "CCTV-003"
+      ],
+      "warnings": [],
+      "answer": "Yes, Marcus Whelan returned to the hub after leaving at 23:31 [ACCESS-003][CCTV-004]. The main entrance door log shows an exit at 23:31:40 [ACCESS-003], and the ANPR camera recorded his rental car exiting the rear car park at 23:33:10 [CCTV-004]. However, the rear car park camera and ANPR log recorded the same vehicle re-entering at 01:39:05 [CCTV-004]. An occupant matching his description in a quilted jacket exited the car, walked toward door DOOR-E2 at 01:42:40 [CCTV-004], and door DOOR-E2 recorded his visitor badge HB-9042 entering at 01:43:12 [NOTE-002]."
+    },
+    {
+      "id": "Q11",
+      "type": "unanswerable",
+      "status": "answered",
+      "status_ok": false,
+      "cited_recall": null,
+      "quotes_verified": 1.0,
+      "cited": [
+        "EMAIL-004",
+        "NOTE-003"
+      ],
+      "missed": [],
+      "warnings": [],
+      "answer": "The stolen laptop has not been recovered and is currently offline [EMAIL-004][NOTE-003]. Its last known location check-in was on Sunday 4 October 2026 at 02:21 near Hanover Quay, Grand Canal Dock, Dublin 2 [EMAIL-004]. Since then, the Find My Device portal has shown no further check-ins [EMAIL-004]."
+    },
+    {
+      "id": "Q12",
+      "type": "unanswerable",
+      "status": "answered",
+      "status_ok": false,
+      "cited_recall": null,
+      "quotes_verified": 1.0,
+      "cited": [
+        "PHONE-003",
+        "INTV-005"
+      ],
+      "missed": [],
+      "warnings": [],
+      "answer": "The case files do not contain the content of the phone call made at 02:05 from Marcus Whelan's phone [PHONE-003]. According to the phone records, an outgoing voice call to the UK number +44 7700 900418 occurred at 02:05:03 and lasted for 4 minutes and 12 seconds [PHONE-003]. However, network operator records do not hold call content [PHONE-003]. When questioned by Gardaí about who he called and what the conversation was about, Marcus Whelan gave no comment and his legal representative stated he was not obliged to discuss private business matters [INTV-005]."
+    },
+    {
+      "id": "Q13",
+      "type": "unanswerable",
+      "status": "partial",
+      "status_ok": false,
+      "cited_recall": null,
+      "quotes_verified": 1.0,
+      "cited": [
+        "EMAIL-003",
+        "STMT-001",
+        "INTV-004"
+      ],
+      "missed": [],
+      "warnings": [],
+      "answer": "The evidence shows that Team 7's laptop was stolen because it contained the only copy of their source code, which had never been pushed to GitHub [EMAIL-003][STMT-001], and their prototype device was taken along with it [EMAIL-003]. Marcus Whelan expressed strong interest in the project and asked if the code was on GitHub, learning that it was exclusively on the laptop [STMT-001][INTV-004]. However, the case files do not state who the thief was working for [STMT-009][INTV-004]."
+    }
+  ]
+}

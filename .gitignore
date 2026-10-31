@@ -1,0 +1,11 @@
+# Secrets: never commit these
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+eval/query_cache.json
+eval/results/
+reports/

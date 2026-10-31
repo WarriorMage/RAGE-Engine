@@ -1,0 +1,1068 @@
+{
+  "k": 5,
+  "model": "voyage-4",
+  "summary": {
+    "vector": {
+      "recall": 0.8303921568627451,
+      "hit": 1.0,
+      "mrr": 0.7990196078431373,
+      "recall_by_type": {
+        "conflict": 0.7375,
+        "exact_code": 1.0,
+        "filtered": 1.0,
+        "multi_source": 0.6944444444444445
+      }
+    },
+    "text": {
+      "recall": 0.7254901960784315,
+      "hit": 1.0,
+      "mrr": 0.7941176470588235,
+      "recall_by_type": {
+        "conflict": 0.75,
+        "exact_code": 0.875,
+        "filtered": 1.0,
+        "multi_source": 0.47222222222222227
+      }
+    },
+    "hybrid": {
+      "recall": 0.796078431372549,
+      "hit": 1.0,
+      "mrr": 0.8480392156862745,
+      "recall_by_type": {
+        "conflict": 0.8,
+        "exact_code": 0.875,
+        "filtered": 1.0,
+        "multi_source": 0.638888888888889
+      }
+    }
+  },
+  "questions": {
+    "vector": [
+      {
+        "id": "Q01",
+        "type": "multi_source",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "ACCESS-001",
+          "CCTV-003"
+        ],
+        "missed": [],
+        "top": [
+          "CCTV-003",
+          "INTV-001",
+          "ACCESS-001",
+          "NOTE-002",
+          "FOREN-002"
+        ]
+      },
+      {
+        "id": "Q02",
+        "type": "multi_source",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 0.5,
+        "found": [
+          "EMAIL-001",
+          "CCTV-002"
+        ],
+        "missed": [],
+        "top": [
+          "INTV-001",
+          "CCTV-002",
+          "STMT-007",
+          "INTV-004",
+          "EMAIL-001"
+        ]
+      },
+      {
+        "id": "Q03",
+        "type": "multi_source",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "CCTV-004"
+        ],
+        "missed": [
+          "RCPT-002"
+        ],
+        "top": [
+          "CCTV-004",
+          "INTV-003",
+          "INTV-004",
+          "NOTE-002",
+          "FOREN-002"
+        ]
+      },
+      {
+        "id": "Q04",
+        "type": "multi_source",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "EMAIL-004"
+        ],
+        "missed": [
+          "RCPT-002"
+        ],
+        "top": [
+          "EMAIL-004",
+          "NOTE-003",
+          "NOTE-001",
+          "EMAIL-003",
+          "STMT-001"
+        ]
+      },
+      {
+        "id": "Q05",
+        "type": "multi_source",
+        "recall": 0.6666666666666666,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "STMT-001",
+          "EMAIL-003"
+        ],
+        "missed": [
+          "CCTV-002"
+        ],
+        "top": [
+          "EMAIL-003",
+          "NOTE-001",
+          "STMT-009",
+          "STMT-001",
+          "FOREN-001"
+        ]
+      },
+      {
+        "id": "Q06",
+        "type": "multi_source",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 0.5,
+        "found": [
+          "STMT-001"
+        ],
+        "missed": [
+          "INTV-004"
+        ],
+        "top": [
+          "EMAIL-003",
+          "STMT-001",
+          "NOTE-001",
+          "INTV-002",
+          "INTV-003"
+        ]
+      },
+      {
+        "id": "Q07",
+        "type": "conflict",
+        "recall": 0.8,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "STMT-005",
+          "STMT-006",
+          "CCTV-001",
+          "INTV-001"
+        ],
+        "missed": [
+          "PHONE-002"
+        ],
+        "top": [
+          "CCTV-001",
+          "STMT-005",
+          "STMT-006",
+          "INTV-001",
+          "STMT-007"
+        ]
+      },
+      {
+        "id": "Q08",
+        "type": "conflict",
+        "recall": 0.75,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "STMT-003",
+          "STMT-004",
+          "INTV-002"
+        ],
+        "missed": [
+          "CHAT-001"
+        ],
+        "top": [
+          "STMT-004",
+          "STMT-003",
+          "INTV-002",
+          "STMT-002",
+          "CHAT-002"
+        ]
+      },
+      {
+        "id": "Q09",
+        "type": "conflict",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 0.5,
+        "found": [
+          "STMT-002",
+          "STMT-008",
+          "CCTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "INTV-003",
+          "CCTV-004",
+          "STMT-002",
+          "STMT-008",
+          "NOTE-002"
+        ]
+      },
+      {
+        "id": "Q10",
+        "type": "conflict",
+        "recall": 0.4,
+        "hit": 1.0,
+        "rr": 0.5,
+        "found": [
+          "STMT-009",
+          "INTV-004"
+        ],
+        "missed": [
+          "ACCESS-001",
+          "CCTV-003",
+          "CCTV-004"
+        ],
+        "top": [
+          "INTV-005",
+          "INTV-004",
+          "STMT-009",
+          "PHONE-003",
+          "STMT-005"
+        ]
+      },
+      {
+        "id": "Q14",
+        "type": "exact_code",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "EMAIL-002",
+          "INTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "INTV-004",
+          "EMAIL-002",
+          "STMT-007",
+          "INTV-002",
+          "ACCESS-002"
+        ]
+      },
+      {
+        "id": "Q15",
+        "type": "exact_code",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "CCTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "CCTV-004",
+          "NOTE-002",
+          "FOREN-002",
+          "ACCESS-001",
+          "INTV-005"
+        ]
+      },
+      {
+        "id": "Q16",
+        "type": "exact_code",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "RCPT-001"
+        ],
+        "missed": [],
+        "top": [
+          "RCPT-001",
+          "STMT-008",
+          "STMT-002",
+          "INTV-003",
+          "PHONE-001"
+        ]
+      },
+      {
+        "id": "Q17",
+        "type": "exact_code",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 0.3333333333333333,
+        "found": [
+          "EMAIL-003",
+          "NOTE-001"
+        ],
+        "missed": [],
+        "top": [
+          "EMAIL-004",
+          "INTV-003",
+          "EMAIL-003",
+          "NOTE-001",
+          "FOREN-001"
+        ]
+      },
+      {
+        "id": "Q18",
+        "type": "filtered",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 0.25,
+        "found": [
+          "CCTV-003",
+          "CCTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "CCTV-002",
+          "CCTV-001",
+          "CCTV-005",
+          "CCTV-003",
+          "CCTV-004"
+        ]
+      },
+      {
+        "id": "Q19",
+        "type": "filtered",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "ACCESS-002"
+        ],
+        "missed": [],
+        "top": [
+          "ACCESS-002",
+          "ACCESS-001",
+          "ACCESS-004",
+          "ACCESS-003"
+        ]
+      },
+      {
+        "id": "Q20",
+        "type": "filtered",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "INTV-005",
+          "NOTE-003"
+        ],
+        "missed": [],
+        "top": [
+          "NOTE-003",
+          "INTV-005"
+        ]
+      }
+    ],
+    "text": [
+      {
+        "id": "Q01",
+        "type": "multi_source",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 0.5,
+        "found": [
+          "ACCESS-001"
+        ],
+        "missed": [
+          "CCTV-003"
+        ],
+        "top": [
+          "FOREN-002",
+          "ACCESS-001",
+          "ACCESS-003",
+          "INTV-001",
+          "INTV-004"
+        ]
+      },
+      {
+        "id": "Q02",
+        "type": "multi_source",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 0.5,
+        "found": [
+          "EMAIL-001"
+        ],
+        "missed": [
+          "CCTV-002"
+        ],
+        "top": [
+          "FOREN-001",
+          "EMAIL-001",
+          "INTV-004",
+          "STMT-005",
+          "EMAIL-002"
+        ]
+      },
+      {
+        "id": "Q03",
+        "type": "multi_source",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "CCTV-004"
+        ],
+        "missed": [
+          "RCPT-002"
+        ],
+        "top": [
+          "CCTV-004",
+          "FOREN-002",
+          "NOTE-002",
+          "STMT-009",
+          "INTV-003"
+        ]
+      },
+      {
+        "id": "Q04",
+        "type": "multi_source",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "EMAIL-004"
+        ],
+        "missed": [
+          "RCPT-002"
+        ],
+        "top": [
+          "EMAIL-004",
+          "EMAIL-003",
+          "FOREN-002",
+          "FOREN-001",
+          "INTV-005"
+        ]
+      },
+      {
+        "id": "Q05",
+        "type": "multi_source",
+        "recall": 0.3333333333333333,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "EMAIL-003"
+        ],
+        "missed": [
+          "STMT-001",
+          "CCTV-002"
+        ],
+        "top": [
+          "EMAIL-003",
+          "FOREN-001",
+          "STMT-010",
+          "NOTE-001",
+          "STMT-009"
+        ]
+      },
+      {
+        "id": "Q06",
+        "type": "multi_source",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 0.5,
+        "found": [
+          "INTV-004"
+        ],
+        "missed": [
+          "STMT-001"
+        ],
+        "top": [
+          "EMAIL-003",
+          "INTV-004",
+          "INTV-003",
+          "NOTE-001",
+          "STMT-009"
+        ]
+      },
+      {
+        "id": "Q07",
+        "type": "conflict",
+        "recall": 0.6,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "STMT-005",
+          "CCTV-001",
+          "INTV-001"
+        ],
+        "missed": [
+          "STMT-006",
+          "PHONE-002"
+        ],
+        "top": [
+          "CCTV-001",
+          "STMT-005",
+          "INTV-001",
+          "NOTE-002",
+          "STMT-009"
+        ]
+      },
+      {
+        "id": "Q08",
+        "type": "conflict",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "STMT-003",
+          "STMT-004",
+          "CHAT-001",
+          "INTV-002"
+        ],
+        "missed": [],
+        "top": [
+          "INTV-002",
+          "STMT-003",
+          "STMT-004",
+          "EMAIL-003",
+          "CHAT-001"
+        ]
+      },
+      {
+        "id": "Q09",
+        "type": "conflict",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 0.5,
+        "found": [
+          "STMT-002",
+          "STMT-008",
+          "CCTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "FOREN-002",
+          "CCTV-004",
+          "INTV-003",
+          "STMT-008",
+          "STMT-002"
+        ]
+      },
+      {
+        "id": "Q10",
+        "type": "conflict",
+        "recall": 0.4,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "STMT-009",
+          "INTV-004"
+        ],
+        "missed": [
+          "ACCESS-001",
+          "CCTV-003",
+          "CCTV-004"
+        ],
+        "top": [
+          "STMT-009",
+          "INTV-004",
+          "INTV-005",
+          "PHONE-003",
+          "RCPT-002"
+        ]
+      },
+      {
+        "id": "Q14",
+        "type": "exact_code",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "EMAIL-002",
+          "INTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "EMAIL-002",
+          "INTV-004",
+          "STMT-007",
+          "ACCESS-001",
+          "STMT-010"
+        ]
+      },
+      {
+        "id": "Q15",
+        "type": "exact_code",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "CCTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "CCTV-004",
+          "NOTE-002",
+          "RCPT-002",
+          "INTV-005",
+          "FOREN-002"
+        ]
+      },
+      {
+        "id": "Q16",
+        "type": "exact_code",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "RCPT-001"
+        ],
+        "missed": [],
+        "top": [
+          "RCPT-001",
+          "STMT-008",
+          "PHONE-001",
+          "STMT-002",
+          "INTV-003"
+        ]
+      },
+      {
+        "id": "Q17",
+        "type": "exact_code",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 0.25,
+        "found": [
+          "EMAIL-003"
+        ],
+        "missed": [
+          "NOTE-001"
+        ],
+        "top": [
+          "EMAIL-004",
+          "NOTE-003",
+          "FOREN-001",
+          "EMAIL-003",
+          "INTV-003"
+        ]
+      },
+      {
+        "id": "Q18",
+        "type": "filtered",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 0.25,
+        "found": [
+          "CCTV-003",
+          "CCTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "CCTV-005",
+          "CCTV-001",
+          "CCTV-002",
+          "CCTV-004",
+          "CCTV-003"
+        ]
+      },
+      {
+        "id": "Q19",
+        "type": "filtered",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "ACCESS-002"
+        ],
+        "missed": [],
+        "top": [
+          "ACCESS-002",
+          "ACCESS-003",
+          "ACCESS-001",
+          "ACCESS-004"
+        ]
+      },
+      {
+        "id": "Q20",
+        "type": "filtered",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "INTV-005",
+          "NOTE-003"
+        ],
+        "missed": [],
+        "top": [
+          "NOTE-003",
+          "INTV-005"
+        ]
+      }
+    ],
+    "hybrid": [
+      {
+        "id": "Q01",
+        "type": "multi_source",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "ACCESS-001",
+          "CCTV-003"
+        ],
+        "missed": [],
+        "top": [
+          "ACCESS-001",
+          "FOREN-002",
+          "INTV-001",
+          "CCTV-003",
+          "NOTE-002"
+        ]
+      },
+      {
+        "id": "Q02",
+        "type": "multi_source",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "EMAIL-001"
+        ],
+        "missed": [
+          "CCTV-002"
+        ],
+        "top": [
+          "EMAIL-001",
+          "INTV-004",
+          "INTV-001",
+          "FOREN-001",
+          "STMT-007"
+        ]
+      },
+      {
+        "id": "Q03",
+        "type": "multi_source",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "CCTV-004"
+        ],
+        "missed": [
+          "RCPT-002"
+        ],
+        "top": [
+          "CCTV-004",
+          "FOREN-002",
+          "NOTE-002",
+          "INTV-004",
+          "EMAIL-001"
+        ]
+      },
+      {
+        "id": "Q04",
+        "type": "multi_source",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "EMAIL-004"
+        ],
+        "missed": [
+          "RCPT-002"
+        ],
+        "top": [
+          "EMAIL-004",
+          "EMAIL-003",
+          "INTV-003",
+          "FOREN-001",
+          "NOTE-001"
+        ]
+      },
+      {
+        "id": "Q05",
+        "type": "multi_source",
+        "recall": 0.3333333333333333,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "EMAIL-003"
+        ],
+        "missed": [
+          "STMT-001",
+          "CCTV-002"
+        ],
+        "top": [
+          "EMAIL-003",
+          "NOTE-001",
+          "STMT-009",
+          "STMT-010",
+          "CHAT-001"
+        ]
+      },
+      {
+        "id": "Q06",
+        "type": "multi_source",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 0.3333333333333333,
+        "found": [
+          "STMT-001",
+          "INTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "EMAIL-003",
+          "NOTE-001",
+          "STMT-001",
+          "INTV-004",
+          "INTV-003"
+        ]
+      },
+      {
+        "id": "Q07",
+        "type": "conflict",
+        "recall": 0.8,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "STMT-005",
+          "STMT-006",
+          "CCTV-001",
+          "INTV-001"
+        ],
+        "missed": [
+          "PHONE-002"
+        ],
+        "top": [
+          "CCTV-001",
+          "STMT-005",
+          "INTV-001",
+          "STMT-006",
+          "NOTE-002"
+        ]
+      },
+      {
+        "id": "Q08",
+        "type": "conflict",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "STMT-003",
+          "STMT-004",
+          "CHAT-001",
+          "INTV-002"
+        ],
+        "missed": [],
+        "top": [
+          "INTV-002",
+          "STMT-003",
+          "STMT-004",
+          "STMT-002",
+          "CHAT-001"
+        ]
+      },
+      {
+        "id": "Q09",
+        "type": "conflict",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "STMT-002",
+          "STMT-008",
+          "CCTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "CCTV-004",
+          "INTV-003",
+          "FOREN-002",
+          "STMT-002",
+          "STMT-008"
+        ]
+      },
+      {
+        "id": "Q10",
+        "type": "conflict",
+        "recall": 0.4,
+        "hit": 1.0,
+        "rr": 0.5,
+        "found": [
+          "STMT-009",
+          "INTV-004"
+        ],
+        "missed": [
+          "ACCESS-001",
+          "CCTV-003",
+          "CCTV-004"
+        ],
+        "top": [
+          "INTV-005",
+          "STMT-009",
+          "INTV-004",
+          "PHONE-003",
+          "INTV-002"
+        ]
+      },
+      {
+        "id": "Q14",
+        "type": "exact_code",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "EMAIL-002",
+          "INTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "EMAIL-002",
+          "INTV-004",
+          "STMT-007",
+          "ACCESS-001",
+          "INTV-002"
+        ]
+      },
+      {
+        "id": "Q15",
+        "type": "exact_code",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "CCTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "CCTV-004",
+          "NOTE-002",
+          "FOREN-002",
+          "INTV-005",
+          "RCPT-002"
+        ]
+      },
+      {
+        "id": "Q16",
+        "type": "exact_code",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "RCPT-001"
+        ],
+        "missed": [],
+        "top": [
+          "RCPT-001",
+          "STMT-008",
+          "PHONE-001",
+          "STMT-002",
+          "INTV-003"
+        ]
+      },
+      {
+        "id": "Q17",
+        "type": "exact_code",
+        "recall": 0.5,
+        "hit": 1.0,
+        "rr": 0.3333333333333333,
+        "found": [
+          "EMAIL-003"
+        ],
+        "missed": [
+          "NOTE-001"
+        ],
+        "top": [
+          "EMAIL-004",
+          "FOREN-001",
+          "EMAIL-003",
+          "NOTE-003",
+          "INTV-003"
+        ]
+      },
+      {
+        "id": "Q18",
+        "type": "filtered",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 0.25,
+        "found": [
+          "CCTV-003",
+          "CCTV-004"
+        ],
+        "missed": [],
+        "top": [
+          "CCTV-002",
+          "CCTV-005",
+          "CCTV-001",
+          "CCTV-003",
+          "CCTV-004"
+        ]
+      },
+      {
+        "id": "Q19",
+        "type": "filtered",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "ACCESS-002"
+        ],
+        "missed": [],
+        "top": [
+          "ACCESS-002",
+          "ACCESS-003",
+          "ACCESS-001",
+          "ACCESS-004"
+        ]
+      },
+      {
+        "id": "Q20",
+        "type": "filtered",
+        "recall": 1.0,
+        "hit": 1.0,
+        "rr": 1.0,
+        "found": [
+          "INTV-005",
+          "NOTE-003"
+        ],
+        "missed": [],
+        "top": [
+          "NOTE-003",
+          "INTV-005"
+        ]
+      }
+    ]
+  },
+  "unanswerable": [
+    {
+      "id": "Q11",
+      "question": "Where is the stolen laptop right now?",
+      "best_vector_score": 0.8215,
+      "best_source": "EMAIL-004"
+    },
+    {
+      "id": "Q12",
+      "question": "What was said during the 02:05 phone call from Marcus Whelan's phone?",
+      "best_vector_score": 0.7638,
+      "best_source": "INTV-005"
+    },
+    {
+      "id": "Q13",
+      "question": "Why was Team 7's prototype stolen, and who was the thief working for?",
+      "best_vector_score": 0.74,
+      "best_source": "EMAIL-003"
+    }
+  ]
+}
