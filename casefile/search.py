@@ -6,6 +6,7 @@ Three ways to search, all sharing the same metadata filters:
   hybrid_search : both, merged with Reciprocal Rank Fusion (RRF)
 """
 
+import re
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -58,6 +59,16 @@ RESULT_FIELDS = {
 }
 
 RRF_K = 60  # standard Reciprocal Rank Fusion constant
+
+# Codes such as HB-9042, 231-D-55120, DOOR-E2, SOD-48213, LT-7731: letters/digits joined by dashes
+# and containing at least one digit. Meaning-based search is weak on these, so hybrid search
+# gives the keyword side more weight when a query contains one.
+CODE_PATTERN = re.compile(r"\b(?=[A-Za-z0-9-]*\d)[A-Za-z0-9]+(?:-[A-Za-z0-9]+)+\b")
+CODE_TEXT_WEIGHT = 2.0
+
+
+def has_code(query: str) -> bool:
+    return bool(CODE_PATTERN.search(query))
 
 
 # ---------------------------------------------------------------- filters
@@ -260,9 +271,14 @@ def rrf_fuse(ranked_lists: dict[str, list[dict]], k: int, weights: dict[str, flo
 
 
 def hybrid_search(db: Database, query: str, k: int = 5, filters: Filters | None = None,
-                  depth: int = 20, vector_weight: float = 1.0, text_weight: float = 1.0) -> list[dict]:
-    """Run vector and text search (each `depth` deep) and fuse them with RRF."""
+                  depth: int = 20, vector_weight: float = 1.0, text_weight: float | None = None) -> list[dict]:
+    """Run vector and text search (each `depth` deep) and fuse them with RRF.
+
+    text_weight defaults to 1.0, or CODE_TEXT_WEIGHT when the query contains a code like HB-9042.
+    """
     f = _as_filters(filters)
+    if text_weight is None:
+        text_weight = CODE_TEXT_WEIGHT if has_code(query) else 1.0
     return rrf_fuse(
         {"vector": vector_search(db, query, depth, f), "text": text_search(db, query, depth, f)},
         k,
