@@ -140,6 +140,13 @@ streamlit run app.py                 # opens http://localhost:8501
 | `python scripts/evaluate.py -k 10 --details` | Retrieval scoreboard |
 | `python scripts/evaluate_answers.py --types conflict unanswerable` | Answer scoreboard |
 | `python scripts/remove_document.py STMT-011` | Remove a document added during a demo |
+| `python scripts/warm_cache.py` | Pre-answer the demo questions and reports so they load instantly |
+
+### Answer cache
+Answers and reports are saved in MongoDB (`answer_cache` collection) and returned instantly when the
+same question is asked again; the app shows "⚡ Instant answer from the cache" with a 🔄 Re-run button.
+The cache key includes a fingerprint of the collection, so adding or removing a document makes old
+answers stale automatically. The evaluation scripts and `ask.py` always compute fresh answers.
 
 ### Free-tier notes
 - Voyage without billing allows ~3 requests/minute; the code switches to "slow mode" automatically.

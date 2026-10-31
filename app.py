@@ -14,30 +14,24 @@ Tabs:
 import html
 import re
 from datetime import date as Date
+from datetime import datetime, timezone
 from datetime import time as Time
 
 import streamlit as st
 
-from casefile.answer import answer_question
+from casefile.cache import cached_answer, cached_report
+from casefile.demo import DEMO_QUESTIONS
 from casefile.db import get_db
 from casefile.embeddings import embed_query
 from casefile.ingest import SOURCES
 from casefile.llm import model_name, provider
 from casefile.parsing import parse_document
-from casefile.report import generate_report, to_markdown
+from casefile.report import to_markdown
 from casefile.pipeline import ID_PREFIXES, add_document, build_raw, collection_stats, next_source_id
 from casefile.search import DOC_TYPES, Filters, search
 
 st.set_page_config(page_title="Case File", page_icon="🕵️", layout="wide")
 
-DEMO_QUESTIONS = [
-    "Was the security desk staffed at around 01:30?",
-    "Did Marcus Whelan return to the hub after leaving at 23:31?",
-    "Who used badge HB-9042?",
-    "What did the person who got out of the car at 01:40 look like?",
-    "Where is the stolen laptop right now?",
-    "Why was Team 7's prototype stolen, and who was the thief working for?",
-]
 STATUS_STYLE = {
     "answered": ("success", "✅ Answered: the case files answer this question."),
     "conflicting": ("warning", "⚠️ Conflicting evidence: sources disagree. Both sides are shown below."),
@@ -96,6 +90,15 @@ def render_citations_inline(text: str) -> str:
     """Escape the answer text and style [SOURCE-ID] markers as small chips."""
     safe = html.escape(text)
     return re.sub(r"\[([A-Z]+-\d+)\]", r'<span class="cite">\1</span>', safe).replace("\n", "<br>")
+
+
+def saved_note(cached_at) -> str:
+    """'saved 5 min ago' for a cached result (Mongo returns naive UTC datetimes)."""
+    if cached_at.tzinfo is None:
+        cached_at = cached_at.replace(tzinfo=timezone.utc)
+    minutes = int((datetime.now(timezone.utc) - cached_at).total_seconds() // 60)
+    when = "just now" if minutes < 1 else f"{minutes} min ago" if minutes < 120 else f"{minutes // 60} h ago"
+    return f"⚡ Instant answer from the cache (saved {when}). The case files have not changed since."
 
 
 def fmt_date(d) -> str:
@@ -222,16 +225,24 @@ with ask_tab:
         submitted = st.form_submit_button("Ask", type="primary")
     filters = filters_ui("ask")
 
-    if (submitted or st.session_state.pop("run", False)) and question.strip() and filters is not None:
+    refresh = st.session_state.pop("refresh_answer", False)
+    if (submitted or st.session_state.pop("run", False) or refresh) and question.strip() and filters is not None:
         with st.spinner("Searching the case files and checking the evidence... (free AI tiers can take ~30s)"):
             try:
-                st.session_state["answer"] = answer_question(db(), question.strip(), filters)
+                answer, cached_at = cached_answer(db(), question.strip(), filters, refresh=refresh)
+                st.session_state["answer"], st.session_state["answer_cached_at"] = answer, cached_at
             except RuntimeError as e:
                 st.session_state.pop("answer", None)
                 st.error(str(e))
     if "answer" in st.session_state:
         st.divider()
         st.markdown(f"#### Q: {st.session_state['answer'].question}")
+        cached_at = st.session_state.get("answer_cached_at")
+        if cached_at:
+            c1, c2 = st.columns([4, 1])
+            c1.caption(saved_note(cached_at))
+            c2.button("🔄 Re-run", key="rerun_answer", help="Ask the AI again instead of using the saved answer",
+                      on_click=lambda: st.session_state.update(refresh_answer=True))
         show_answer(st.session_state["answer"])
 
 
@@ -247,16 +258,23 @@ with report_tab:
              "lines without a valid citation are removed automatically, and gaps are listed as open questions.")
     focus = st.text_input("Focus (optional)", placeholder="e.g. movements of vehicle 231-D-55120", key="report_focus")
     report_filters = filters_ui("report")
-    if st.button("Generate case report", type="primary") and report_filters is not None:
+    refresh_report = st.session_state.pop("refresh_report", False)
+    if (st.button("Generate case report", type="primary") or refresh_report) and report_filters is not None:
         with st.spinner("Gathering evidence from 6 angles and writing the report... (about 30-60 seconds)"):
             try:
-                st.session_state["report"] = generate_report(db(), focus, report_filters)
+                report, cached_at = cached_report(db(), focus, report_filters, refresh=refresh_report)
+                st.session_state["report"], st.session_state["report_cached_at"] = report, cached_at
             except RuntimeError as e:
                 st.session_state.pop("report", None)
                 st.error(str(e))
 
     r = st.session_state.get("report")
     if r:
+        if st.session_state.get("report_cached_at"):
+            c1, c2 = st.columns([4, 1])
+            c1.caption(saved_note(st.session_state["report_cached_at"]))
+            c2.button("🔄 Re-run", key="rerun_report", help="Write a fresh report instead of using the saved one",
+                      on_click=lambda: st.session_state.update(refresh_report=True))
         titles = {sid: (load_source(sid) or {}).get("title", "") for sid in r.cited_sources}
         st.download_button("⬇️ Download report (Markdown)", to_markdown(r, titles),
                            file_name=f"case-report-{r.created.replace(' ', '-').replace(':', '')}.md",
