@@ -262,3 +262,14 @@ No single document names him. The chain is:
 | CHAT-002 | chat_export | HackLiffey night-crew chat export | Niamh Kavanagh | 2026-10-03 | 22:00 | CAM-02 warning 00:58; Seán on the beanbag 01:18; 07:00 alarm. |
 | RCPT-001 | receipt | Slice of Dublin order SOD-48213 | Slice of Dublin | 2026-10-04 | 01:20 | Rohan's order; rear car park delivery; driver Femi, car 191-D-20733. |
 | RCPT-002 | receipt | Ryde Car Rental agreement RYD-2026-77314 | Ryde Car Rental | 2026-10-02 | 13:10 | Grey Audi A4 231-D-55120 rented to Marcus Whelan; hotel Hanover Quay. |
+
+---
+
+## 6. Demo-only document (not in data/case_files)
+
+`data/demo/hotel_night_porter.txt` is a late witness statement from **Declan Shaw**, night porter at the
+Harbourview Hotel, used to demonstrate live import in the app. It is consistent with the timeline:
+Marcus leaves the hotel at about 01:20 (phone goes silent at 01:21:44), the Audi reaches the hub at 01:39,
+leaves the hub at 02:03, and Marcus is back at the hotel at about 02:20 with a full backpack and a grey case
+(laptop's last ping is 02:21 at Hanover Quay). Remove it after a demo with
+`python scripts/remove_document.py STMT-011`.
