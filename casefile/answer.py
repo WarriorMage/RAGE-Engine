@@ -237,7 +237,10 @@ def answer_question(db: Database, question: str, filters: Filters | None = None)
     # 2. Investigate with keyword follow-ups
     follow_ups: list[str] = []
     if evidence:
-        follow_ups = plan_follow_ups(question, evidence)
+        try:
+            follow_ups = plan_follow_ups(question, evidence)
+        except RuntimeError as e:   # optional step: answer anyway with the first evidence
+            print(f"  (skipping follow-up searches: {e})")
         extra = run_follow_ups(db, follow_ups, evidence, filters)
         evidence += label_evidence(extra, start=len(evidence) + 1)
 
