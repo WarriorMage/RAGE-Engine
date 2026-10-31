@@ -1,0 +1,145 @@
+[
+  {
+    "id": "Q01",
+    "question": "Who or what went through the east loading door DOOR-E2 between 01:30 and 02:30, and what did the cameras show at those moments?",
+    "type": "multi_source",
+    "expected_source_ids": ["ACCESS-001", "CCTV-003"],
+    "correct_answer": "Rohan went out at 01:38 and back in with badge HB-1008 at 01:41; badge HB-9042 entered at 01:43:12, matching a tall figure in a navy quilted jacket on CAM-03 who left with a grey case at 01:58:56; the cleaner took a bin out at 02:14 and returned at 02:19."
+  },
+  {
+    "id": "Q02",
+    "question": "How could someone have known the main hall camera would not be recording during the night?",
+    "type": "multi_source",
+    "expected_source_ids": ["EMAIL-001", "CCTV-002"],
+    "correct_answer": "Facilities emailed the organisers and partners lists on 2 October announcing a CAM-02 firmware update from 01:00 to 02:00 on Sunday; CAM-02 was offline from 01:00:03 to 02:10:41."
+  },
+  {
+    "id": "Q03",
+    "question": "Which car arrived in the rear car park around 01:39 and who had rented it?",
+    "type": "multi_source",
+    "expected_source_ids": ["CCTV-004", "RCPT-002"],
+    "correct_answer": "Grey Audi A4 231-D-55120 entered at 01:39:05 and left at 02:03:12; it was rented from Ryde Car Rental to Marcus Whelan under agreement RYD-2026-77314."
+  },
+  {
+    "id": "Q04",
+    "question": "Where was the stolen laptop last detected, and is that place connected to anyone involved in the case?",
+    "type": "multi_source",
+    "expected_source_ids": ["EMAIL-004", "RCPT-002"],
+    "correct_answer": "Its last Find My Device check-in was at 02:21 on 4 October near Hanover Quay, Grand Canal Dock; Marcus Whelan's rental agreement gives the Harbourview Hotel on Hanover Quay as his local address."
+  },
+  {
+    "id": "Q05",
+    "question": "When were the laptop and prototype last seen on Team 7's table, and when were they found missing?",
+    "type": "multi_source",
+    "expected_source_ids": ["STMT-001", "CCTV-002", "EMAIL-003"],
+    "correct_answer": "Aoife left them at about 00:40 and CAM-02 shows them on T-07 at 00:58:30; they were gone when the camera came back at 02:10:41, and Aoife discovered the loss at about 07:05."
+  },
+  {
+    "id": "Q06",
+    "question": "Who knew that Team 7's source code existed only on the laptop?",
+    "type": "multi_source",
+    "expected_source_ids": ["STMT-001", "INTV-004"],
+    "correct_answer": "Aoife and Rohan, plus Marcus Whelan, whom Aoife told at the 20:30 sponsor preview when he asked about GitHub; Marcus confirms this in his first interview."
+  },
+  {
+    "id": "Q07",
+    "question": "Was the security desk staffed at around 01:30?",
+    "type": "conflict",
+    "expected_source_ids": ["STMT-005", "STMT-006", "CCTV-001", "PHONE-002", "INTV-001"],
+    "correct_answer": "Conflict: Tomás first said he never left the desk, but Gráinne saw it empty; CAM-01, the DOOR-M1 log and his 27-minute phone call show he was outside from 01:24 to 01:51, which he later admitted."
+  },
+  {
+    "id": "Q08",
+    "question": "When was Ciarán Doyle at Team 7's table after the argument?",
+    "type": "conflict",
+    "expected_source_ids": ["STMT-003", "STMT-004", "CHAT-001", "INTV-002"],
+    "correct_answer": "Conflict: Ciarán denied going back and Priya said around 01:30, but the chat photo (00:15:58) and his later admission show he was there at about 00:16 to borrow a cable."
+  },
+  {
+    "id": "Q09",
+    "question": "What did the person who got out of the car in the rear car park at about 01:40 look like?",
+    "type": "conflict",
+    "expected_source_ids": ["STMT-002", "STMT-008", "CCTV-004"],
+    "correct_answer": "Conflict: Rohan describes a tall older man in a quilted jacket getting out of a dark grey saloon, while Femi describes a young man in a hoodie and a black hatchback; CCTV-004 records a grey Audi A4 saloon and a tall occupant in a quilted jacket."
+  },
+  {
+    "id": "Q10",
+    "question": "Did Marcus Whelan return to the hub after leaving at 23:31?",
+    "type": "conflict",
+    "expected_source_ids": ["STMT-009", "INTV-004", "ACCESS-001", "CCTV-003", "CCTV-004"],
+    "correct_answer": "Conflict: Marcus says he went straight to his hotel and did not return, but his badge HB-9042 opened DOOR-E2 at 01:43:12, a figure in a navy quilted jacket entered on CAM-03 at the same moment, and his rental Audi was in the car park from 01:39 to 02:03."
+  },
+  {
+    "id": "Q11",
+    "question": "Where is the stolen laptop right now?",
+    "type": "unanswerable",
+    "expected_source_ids": [],
+    "correct_answer": "Unknown. The documents only give the last check-in, at 02:21 near Hanover Quay; the property has not been recovered."
+  },
+  {
+    "id": "Q12",
+    "question": "What was said during the 02:05 phone call from Marcus Whelan's phone?",
+    "type": "unanswerable",
+    "expected_source_ids": [],
+    "correct_answer": "Unknown. The call content is not held, Whelan answered no comment, and the UK subscriber is still unknown."
+  },
+  {
+    "id": "Q13",
+    "question": "Why was Team 7's prototype stolen, and who was the thief working for?",
+    "type": "unanswerable",
+    "expected_source_ids": [],
+    "correct_answer": "Not established. No document records a motive or an employer behind the theft."
+  },
+  {
+    "id": "Q14",
+    "question": "Who was badge HB-9042 issued to?",
+    "type": "exact_code",
+    "expected_source_ids": ["EMAIL-002", "INTV-004"],
+    "correct_answer": "Marcus Whelan of Brightwave Ventures, as a sponsor visitor badge valid on DOOR-M1 and DOOR-E2 until Sunday 10:00."
+  },
+  {
+    "id": "Q15",
+    "question": "When did vehicle 231-D-55120 enter and leave the rear car park?",
+    "type": "exact_code",
+    "expected_source_ids": ["CCTV-004"],
+    "correct_answer": "It left at 23:33:10, re-entered at 01:39:05 (parking at bay P-31) and left again at 02:03:12."
+  },
+  {
+    "id": "Q16",
+    "question": "What was in Slice of Dublin order SOD-48213 and who delivered it?",
+    "type": "exact_code",
+    "expected_source_ids": ["RCPT-001"],
+    "correct_answer": "Crisps, energy drinks, brownies and garlic dip for EUR 22.60, ordered by Rohan at 01:20 and delivered to the rear car park at 01:38 by Femi A. in vehicle 191-D-20733."
+  },
+  {
+    "id": "Q17",
+    "question": "What device has asset tag LT-7731?",
+    "type": "exact_code",
+    "expected_source_ids": ["EMAIL-003", "NOTE-001"],
+    "correct_answer": "Aoife Brennan's silver Lenovo ThinkPad X1 Carbon, a Dalton University laptop holding Team 7's only copy of the code."
+  },
+  {
+    "id": "Q18",
+    "question": "According to the CCTV logs, what happened between 01:40 and 02:05?",
+    "type": "filtered",
+    "expected_source_ids": ["CCTV-003", "CCTV-004"],
+    "correct_answer": "Rohan came back in at 01:41; the Audi occupant walked to DOOR-E2, a figure in a navy quilted jacket entered at 01:43:06 and left with a grey case at 01:58:56, and the Audi left at 02:03:12.",
+    "filter": {"doc_type": "cctv_log"}
+  },
+  {
+    "id": "Q19",
+    "question": "According to the door access logs, who entered or left LAB-2 after midnight?",
+    "type": "filtered",
+    "expected_source_ids": ["ACCESS-002"],
+    "correct_answer": "Badges HB-1003, HB-1021 and HB-1022 entered at 00:31 and HB-1008 at 00:50; there was a REX exit at 01:12 with HB-1003 back at 01:19, a REX exit at 01:36 with HB-1008 back at 01:42, and REX exits at 02:34 and 03:15–03:16.",
+    "filter": {"doc_type": "door_access_log"}
+  },
+  {
+    "id": "Q20",
+    "question": "In documents dated 10 October or later, what is the status of the investigation?",
+    "type": "filtered",
+    "expected_source_ids": ["INTV-005", "NOTE-003"],
+    "correct_answer": "The property has not been recovered; Whelan gave no comment on the car and the call; the UK subscriber check, hotel CCTV and jacket fibre comparison are pending.",
+    "filter": {"date_from": "2026-10-10"}
+  }
+]
