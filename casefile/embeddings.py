@@ -40,21 +40,37 @@ def chunk_embedding_text(chunk: dict) -> str:
     return f"{context}\n{chunk['text']}"
 
 
-RATE_LIMIT_WAIT = 60   # seconds; Voyage limits are per minute
-RATE_LIMIT_TRIES = 6
+RATE_LIMIT_WAIT = 65      # seconds; Voyage limits are per minute
+RATE_LIMIT_TRIES = 10
+SLOW_MODE_GAP = 25        # seconds between requests once we know we're on free-tier limits
+
+_slow_mode = False        # switched on after the first rate limit in this run
+_last_request = 0.0
 
 
 def _embed(texts: list[str], input_type: str) -> list[list[float]]:
+    global _slow_mode, _last_request
     for attempt in range(1, RATE_LIMIT_TRIES + 1):
+        if _slow_mode:
+            gap = SLOW_MODE_GAP - (time.monotonic() - _last_request)
+            if gap > 0:
+                time.sleep(gap)
         try:
+            _last_request = time.monotonic()
             return _client().embed(texts, model=model_name(), input_type=input_type).embeddings
         except voyageai.error.RateLimitError:
             if attempt == RATE_LIMIT_TRIES:
                 break
-            print(f"  Voyage rate limit hit (try {attempt}/{RATE_LIMIT_TRIES}), waiting {RATE_LIMIT_WAIT}s... "
-                  "(tip: adding a payment method in the Voyage dashboard raises the limits)")
+            if not _slow_mode:
+                print("  Voyage free-tier limit reached: switching to slow mode (one request every "
+                      f"{SLOW_MODE_GAP}s). Adding a payment method at dash.voyageai.com removes this.")
+                _slow_mode = True
+            print(f"  rate limited (try {attempt}/{RATE_LIMIT_TRIES}), waiting {RATE_LIMIT_WAIT}s...")
             time.sleep(RATE_LIMIT_WAIT)
-    raise RuntimeError("Voyage rate limit: gave up. Add a payment method at dash.voyageai.com to raise limits.")
+    raise RuntimeError(
+        "Voyage kept rate-limiting. Make sure nobody else is using the same VOYAGE_API_KEY right now, "
+        "then run the script again (it continues where it stopped), or add a payment method at dash.voyageai.com."
+    )
 
 
 def _estimate_tokens(text: str) -> int:
