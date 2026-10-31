@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 
 from pymongo.database import Database
 
-from casefile.llm import chat_json, model_name
+from casefile.llm import chat_json, last_model_used, model_name
 from casefile.search import Filters, hybrid_search, text_search
 
 MAX_SOURCES = 10            # measured in Step 8: recall@10 = 87-90% vs 80-83% at 5
@@ -74,6 +74,7 @@ class Answer:
     status: str = "answered"             # one of STATUSES
     conflicts: list[Conflict] = field(default_factory=list)
     missing: list[str] = field(default_factory=list)    # what the case files do not say
+    question_parts: list[dict] = field(default_factory=list)  # [{"part": ..., "covered": yes/partly/no}]
     warnings: list[str] = field(default_factory=list)   # problems found by the code checks
 
     @property
@@ -187,31 +188,47 @@ CITATIONS
   character for character, from that evidence excerpt.
 
 HONESTY
-- Use no outside knowledge. Never guess, speculate about motives, or fill gaps.
+- Use no outside knowledge. Never guess or fill gaps.
+- A reason, motive, intention, current location, or the content of a conversation counts as
+  known ONLY if a document states it explicitly. Do not infer it from circumstances.
+- A last known position is not a current position. A suspicious pattern is not proof.
 - People can be mistaken or lie. Report claims as claims ("X says ..."), and check them
   against records such as CCTV, door logs and phone records.
 - Give exact times, codes and names as written in the evidence.
 - Be concise: 3-8 sentences, or a short bullet list.
+- If the case files do not contain the answer, start with "The case files do not show ...",
+  then give only closely related facts that ARE known, with citations.
 
-STATUS (choose exactly one)
-- "answered": the evidence directly answers the question.
-- "conflicting": sources relevant to the question disagree (a claim vs a record, or two
-  witnesses). Explain both sides in the answer AND list each disagreement in "conflicts".
-- "partial": the evidence answers only part of the question. List the rest in "missing".
-- "insufficient": the case files do not contain the answer. Start the answer with
-  "The case files do not show ..." and then give only closely related facts that ARE known,
-  with citations. List what is unknown in "missing".
-
-CONFLICTS: for each disagreement give the topic, the claim and its evidence ids, what the
-other evidence shows and its evidence ids, and an assessment of which side the records
-support better (or "unresolved" if they do not). Use [] when there are none.
-MISSING: short phrases describing information the case files do not contain. [] if none."""
+FILL IN THE FIELDS IN THIS ORDER
+1. "answer": the cited answer.
+2. "question_parts": split the question into the things it asks (usually 1-3). For each,
+   "covered" is "yes" if a document explicitly answers it, "partly" if only some of it is
+   answered, "no" if the case files do not contain it.
+3. "conflicts": list EVERY disagreement in the evidence about what the question asks, EVEN IF
+   the records resolve it. Examples: a person's statement vs CCTV or door logs; two witnesses
+   describing the same moment differently; someone changing their story between statement
+   and interview. Give the claim and its evidence ids, what the other evidence shows and its
+   evidence ids, and an assessment of which side the records support (or "unresolved").
+   Use [] only if every relevant source agrees.
+4. "missing": short phrases for information the case files do not contain. [] if none.
+5. "citations": evidence id + exact quote for each citation used."""
 
 ANSWER_SCHEMA = {
     "type": "object",
     "properties": {
-        "status": {"type": "string", "enum": STATUSES},
         "answer": {"type": "string"},
+        "question_parts": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "part": {"type": "string"},
+                    "covered": {"type": "string", "enum": ["yes", "partly", "no"]},
+                },
+                "required": ["part", "covered"],
+                "additionalProperties": False,
+            },
+        },
         "conflicts": {
             "type": "array",
             "items": {
@@ -240,7 +257,7 @@ ANSWER_SCHEMA = {
             },
         },
     },
-    "required": ["status", "answer", "conflicts", "missing", "citations"],
+    "required": ["answer", "question_parts", "conflicts", "missing", "citations"],
     "additionalProperties": False,
 }
 
@@ -318,26 +335,32 @@ def build_conflicts(raw: list[dict], evidence: list[dict]) -> list[Conflict]:
     return conflicts
 
 
-def apply_guards(status: str, citations: list[Citation], conflicts: list[Conflict]) -> tuple[str, list[str]]:
-    """Code-level honesty checks that do not trust the model's own judgement.
+def decide_status(parts: list[dict], citations: list[Citation],
+                  conflicts: list[Conflict]) -> tuple[str, list[str]]:
+    """The verdict is decided HERE, by fixed rules, not by the model.
 
-    - An answer that claims to answer but has no valid citation becomes "insufficient".
-    - "conflicting" must come with at least one listed conflict, and listed conflicts
-      make the status "conflicting".
-    - Quotes that could not be found in the source produce a warning.
+    The model only reports facts about its answer (which parts are covered, which conflicts it
+    saw); weaker or rushed models are unreliable at choosing a label themselves.
+      every question part "no"         -> insufficient
+      no valid citations               -> insufficient
+      any conflict listed              -> conflicting
+      some part "no" or "partly"       -> partial
+      otherwise                        -> answered
+    Quotes that could not be found in their source add a warning.
     """
     warnings: list[str] = []
-    if status not in STATUSES:
-        warnings.append(f"Unknown status '{status}' from the model; treated as partial.")
-        status = "partial"
-    if status != "insufficient" and not citations:
+    covered = [p.get("covered", "no") for p in parts] or ["no"]
+    if all(c == "no" for c in covered):
+        status = "insufficient"
+    elif not citations:
         warnings.append("The answer had no valid citations, so it is not trusted.")
         status = "insufficient"
-    if status == "conflicting" and not conflicts:
-        warnings.append("Marked as conflicting but no specific conflict was listed.")
-        status = "partial"
-    if conflicts and status in ("answered", "partial"):
+    elif conflicts:
         status = "conflicting"
+    elif any(c != "yes" for c in covered):
+        status = "partial"
+    else:
+        status = "answered"
     unverified = [c for c in citations if not c.quote_verified]
     if unverified:
         warnings.append(f"{len(unverified)} of {len(citations)} quotes could not be found word-for-word "
@@ -389,16 +412,18 @@ def answer_question(db: Database, question: str, filters: Filters | None = None,
     citations = verify_citations(result.get("citations", []), evidence)
     conflicts = build_conflicts(result.get("conflicts", []), evidence)
 
-    # 5. Honesty guard
-    status, warnings = apply_guards(result.get("status", "partial"), citations, conflicts)
+    # 5. Honesty guard: the code decides the verdict
+    parts = result.get("question_parts", [])
+    status, warnings = decide_status(parts, citations, conflicts)
     return Answer(
         question=question,
         answer=replace_labels(result.get("answer", ""), evidence),
         citations=citations,
         evidence=evidence,
         follow_up_searches=follow_ups,
-        model=model_name(),
+        model=last_model_used(),
         status=status,
+        question_parts=parts,
         conflicts=conflicts,
         missing=[m for m in result.get("missing", []) if m.strip()],
         warnings=warnings,

@@ -94,6 +94,14 @@ def models_to_try() -> list[str]:
     return models
 
 
+_last_model_used = ""
+
+
+def last_model_used() -> str:
+    """The model that actually produced the most recent reply (may be a backup model)."""
+    return _last_model_used or model_name()
+
+
 def chat_json(system: str, user: str, schema: dict, schema_name: str) -> dict:
     """Ask the model and get back a dict matching `schema` (structured output).
 
@@ -108,6 +116,8 @@ def chat_json(system: str, user: str, schema: dict, schema_name: str) -> dict:
         for model in models:
             try:
                 response = _call(name, model, system, user, schema, schema_name)
+                global _last_model_used
+                _last_model_used = model
                 break
             except AuthenticationError:
                 raise RuntimeError(f"{name} rejected the API key. Check {PROVIDERS[name][0]} in your .env file.") from None

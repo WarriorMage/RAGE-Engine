@@ -51,6 +51,10 @@ def main() -> int:
     print(f"\n{result.status_label}\n")
     print(textwrap.fill(result.answer, 95, replace_whitespace=False))
 
+    if result.question_parts:
+        marks = {"yes": "✓", "partly": "~", "no": "✗"}
+        print("\nQuestion parts: " + "   ".join(f"{marks.get(p['covered'], '?')} {p['part']}" for p in result.question_parts))
+
     if result.conflicts:
         print("\nContradictions")
         print("--------------")

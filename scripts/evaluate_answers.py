@@ -12,7 +12,7 @@ Run from the repo root:
     python scripts/evaluate_answers.py --ids Q07 Q11                 # specific questions
 
 Free tiers allow only a few AI calls per minute, so there is a pause between questions
-(--pause, default 20 seconds). Results are saved to eval/results/answers-*.json.
+(--pause, default 30 seconds). Results are saved to eval/results/answers-*.json.
 """
 
 import argparse
@@ -48,7 +48,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--types", nargs="+", help="only these question types")
     parser.add_argument("--ids", nargs="+", help="only these question ids, e.g. Q07 Q11")
-    parser.add_argument("--pause", type=int, default=20, help="seconds between questions (free tiers)")
+    parser.add_argument("--pause", type=int, default=30, help="seconds between questions (free tiers)")
     args = parser.parse_args()
 
     questions = json.loads(QUESTIONS.read_text(encoding="utf-8"))
@@ -82,10 +82,11 @@ def main() -> int:
             "id": q["id"], "type": q["type"], "status": a.status, "status_ok": status_ok,
             "cited_recall": cited_recall, "quotes_verified": quotes_ok, "cited": cited,
             "missed": [s for s in expected if s not in cited], "warnings": a.warnings, "answer": a.answer,
+            "model": a.model, "question_parts": a.question_parts,
         })
         recall_txt = f"cited {cited_recall:.0%}" if cited_recall is not None else "cited  n/a"
         quotes_txt = f"quotes {quotes_ok:.0%}" if quotes_ok is not None else "quotes n/a"
-        print(f"  {q['id']} {'✅' if status_ok else '❌'} {q['type']:12} status={a.status:12} {recall_txt:11} {quotes_txt}")
+        print(f"  {q['id']} {'✅' if status_ok else '❌'} {q['type']:12} status={a.status:12} {recall_txt:11} {quotes_txt:11} ({a.model})")
 
     done = [r for r in rows if "error" not in r]
     if not done:
