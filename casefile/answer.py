@@ -276,6 +276,20 @@ def locate_quote(text: str, quote: str) -> tuple[int, int] | None:
 
 
 LABEL_PATTERN = re.compile(r"\[(E\d+)\]")
+_GROUP_PATTERN = re.compile(r"[\[(]\s*(E\d+(?:\s*(?:,|;|&|and)\s*E\d+)+)\s*[\])]")   # [E1, E3] or (E1; E3)
+_PAREN_PATTERN = re.compile(r"\(\s*(E\d+)\s*\)")                                       # (E1)
+_BARE_PATTERN = re.compile(r"(?<![\[\w\-/.:])(E\d+)(?![\]\w\-])")                   # E1 without brackets (not DOOR-E2)
+
+
+def normalize_labels(text: str, known: set[str] | None = None) -> str:
+    """Rewrite citation styles models sometimes use into the standard [E1][E3] form:
+    '[E1, E3]' -> '[E1][E3]',  '(E2)' -> '[E2]',  and bare 'E4' -> '[E4]' when E4 is a known
+    evidence label. Codes such as DOOR-E2 are never touched."""
+    text = _GROUP_PATTERN.sub(lambda m: "".join(f"[{x}]" for x in re.findall(r"E\d+", m.group(1))), text)
+    text = _PAREN_PATTERN.sub(r"[\1]", text)
+    if known:
+        text = _BARE_PATTERN.sub(lambda m: f"[{m.group(1)}]" if m.group(1) in known else m.group(1), text)
+    return text
 
 
 def verify_citations(raw_citations: list[dict], evidence: list[dict]) -> list[Citation]:
@@ -371,6 +385,7 @@ def decide_status(parts: list[dict], citations: list[Citation],
 def replace_labels(answer: str, evidence: list[dict]) -> str:
     """Turn [E3] into [ACCESS-001]; drop labels that do not exist; merge repeats like [A][A]."""
     by_label = {e["label"]: e["source_id"] for e in evidence}
+    answer = normalize_labels(answer, set(by_label))
     text = LABEL_PATTERN.sub(lambda m: f"[{by_label[m.group(1)]}]" if m.group(1) in by_label else "", answer)
     # [ACCESS-001][ACCESS-001] or [ACCESS-001], [ACCESS-001] -> [ACCESS-001]
     text = re.sub(r"(\[[A-Z]+-\d+\])(?:\s*,?\s*\1)+", r"\1", text)

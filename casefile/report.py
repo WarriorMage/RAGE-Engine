@@ -17,6 +17,7 @@ from pymongo.database import Database
 
 from casefile.answer import (
     LABEL_PATTERN,
+    normalize_labels,
     Citation,
     format_evidence,
     label_evidence,
@@ -149,7 +150,7 @@ REPORT_SCHEMA = {
 
 def _has_valid_label(text: str, evidence: list[dict]) -> bool:
     labels = {e["label"] for e in evidence}
-    return any(m.group(1) in labels for m in LABEL_PATTERN.finditer(text))
+    return any(m.group(1) in labels for m in LABEL_PATTERN.finditer(normalize_labels(text, labels)))
 
 
 def _clean_items(items: list[dict], cited_field: str, evidence: list[dict]) -> tuple[list[dict], int]:

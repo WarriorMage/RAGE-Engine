@@ -5,6 +5,7 @@ Run from the repo root, some time before presenting (takes a few minutes on free
     python scripts/warm_cache.py --refresh       # redo everything (e.g. once the main model works again)
     python scripts/warm_cache.py --clear         # empty the cache
     python scripts/warm_cache.py --no-reports    # questions only (reports are the slowest)
+    python scripts/warm_cache.py --reports-only --refresh   # redo just the demo reports
 
 The cache is in MongoDB, so warming it from any laptop also speeds up the deployed site.
 Note: the hotel question is cached for the CURRENT collection. After you add the night porter's
@@ -30,6 +31,7 @@ def main() -> int:
     parser.add_argument("--refresh", action="store_true", help="recompute even if cached")
     parser.add_argument("--clear", action="store_true", help="delete every cached answer and report, then stop")
     parser.add_argument("--no-reports", action="store_true", help="skip the (slow) demo reports")
+    parser.add_argument("--reports-only", action="store_true", help="only the demo reports, no questions")
     parser.add_argument("--pause", type=int, default=20, help="seconds between AI calls (free tiers)")
     args = parser.parse_args()
 
@@ -38,7 +40,7 @@ def main() -> int:
         print(f"Removed {clear_cache(db)} cached item(s).")
         return 0
 
-    jobs = [("answer", q) for q in [*DEMO_QUESTIONS, IMPORT_DEMO_QUESTION]]
+    jobs = [] if args.reports_only else [("answer", q) for q in [*DEMO_QUESTIONS, IMPORT_DEMO_QUESTION]]
     if not args.no_reports:
         jobs += [("report", f) for f in DEMO_REPORT_FOCUSES]
 
@@ -53,6 +55,8 @@ def main() -> int:
             else:
                 result, cached_at = cached_report(db, text, Filters(), refresh=args.refresh)
                 detail = f"{len(result.timeline)} timeline entries"
+                if result.removed_uncited:
+                    detail += f", {result.removed_uncited} uncited removed"
         except RuntimeError as e:
             print(f"  ❌ {kind:6} {label}\n       {e}")
             continue
