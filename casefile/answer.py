@@ -372,7 +372,8 @@ def replace_labels(answer: str, evidence: list[dict]) -> str:
     """Turn [E3] into [ACCESS-001]; drop labels that do not exist; merge repeats like [A][A]."""
     by_label = {e["label"]: e["source_id"] for e in evidence}
     text = LABEL_PATTERN.sub(lambda m: f"[{by_label[m.group(1)]}]" if m.group(1) in by_label else "", answer)
-    text = re.sub(r"(\[[A-Z]+-\d+\])(\1)+", r"\1", text)   # [ACCESS-001][ACCESS-001] -> [ACCESS-001]
+    # [ACCESS-001][ACCESS-001] or [ACCESS-001], [ACCESS-001] -> [ACCESS-001]
+    text = re.sub(r"(\[[A-Z]+-\d+\])(?:\s*,?\s*\1)+", r"\1", text)
     return re.sub(r"[ \t]+([.,;:])", r"\1", text).strip()
 
 
